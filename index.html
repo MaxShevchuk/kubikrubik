@@ -554,7 +554,7 @@ body {
         <div class="row" id="plAlts" role="tablist" aria-label="Formula variants"></div>
         <div class="row"><div class="seg" id="plViews" role="group" aria-label="View">
           <button type="button" data-view="front" aria-pressed="true">3D</button><button type="button" data-view="back" aria-pressed="false">Back</button><button type="button" data-view="top" aria-pressed="false">Top</button></div>
-          <div class="seg" id="plSpeed" role="group" aria-label="Speed"><button type="button" data-speed="0.5" aria-pressed="false">0.5×</button><button type="button" data-speed="1" aria-pressed="true">1×</button><button type="button" data-speed="2" aria-pressed="false">2×</button></div></div>
+          <div class="seg" id="plSpeed" role="group" aria-label="Speed"><button type="button" data-speed="0.25" aria-pressed="false">0.5×</button><button type="button" data-speed="0.5" aria-pressed="true">1×</button><button type="button" data-speed="1" aria-pressed="false">2×</button></div></div>
         <div class="ctrl">
           <button class="btn icon" id="plStart" type="button" aria-label="Back to start" title="Back to start (Home)"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 5h2v14H6zM20 5v14L9 12Z"/></svg></button>
           <button class="btn icon" id="plPrev" type="button" aria-label="Previous move" title="Previous move (←)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg></button>
@@ -1388,6 +1388,7 @@ function hydrate(saved) {
     if (saved.settings.palette === 'white') out.settings.palette = 'white';
     if (TABS.includes(saved.settings.tab)) out.settings.tab = saved.settings.tab;
     if (saved.settings.drillMode === 'recognise') out.settings.drillMode = 'recognise';
+    if ([0.25, 0.5, 1].includes(saved.settings.speed)) out.settings.speed = saved.settings.speed; // player speed (real factor; the buttons show 0.5× / 1× / 2×)
     if (saved.settings.lang === 'uk' || saved.settings.lang === 'en') out.settings.lang = saved.settings.lang;
     if (saved.settings.pref && typeof saved.settings.pref === 'object') {
       for (const [k, t] of Object.entries(saved.settings.pref)) if (typeof t === 'string' && t) (out.settings.pref = out.settings.pref || {})[k] = t;
@@ -2012,7 +2013,7 @@ $('#addForm').addEventListener('submit', ev => {
 
 /* ── player ──────────────────────────────────────────────── */
 const plDlg = $('#player'), plBox = $('#plStageBox');
-const PL = { stage: '', id: '', texts: [], sel: 0, view: 'front', speed: 1, playing: false, moves: [], states: [], pos: 0, anim: null, raf: 0, timer: 0, v: null };
+const PL = { stage: '', id: '', texts: [], sel: 0, view: 'front', speed: [0.25, 0.5, 1].includes(db.settings.speed) ? db.settings.speed : 0.5, playing: false, moves: [], states: [], pos: 0, anim: null, raf: 0, timer: 0, v: null };
 const ease = t => (t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 const angleOf = mv => { const d = E.MOVE_DEFS[mv.letter], t = mv.turns === 2 ? 2 : mv.prime ? -1 : 1; return d.q * t * Math.PI / 2; };
 function openPlayer(stage, id) {
@@ -2099,7 +2100,7 @@ $('#plScrub').addEventListener('input', ev => plJump(+ev.target.value));
 $('#plMoves').addEventListener('click', ev => { const b = ev.target.closest('button[data-i]'); if (b) plJump(+b.dataset.i + 1); });
 $('#plAlts').addEventListener('click', ev => { const b = ev.target.closest('[data-alt]'); if (b) { PL.sel = +b.dataset.alt; loadSeq(); } });
 $('#plViews').addEventListener('click', ev => { const b = ev.target.closest('[data-view]'); if (b) { PL.view = b.dataset.view; plStop(); syncPlayer(); draw(); } });
-$('#plSpeed').addEventListener('click', ev => { const b = ev.target.closest('[data-speed]'); if (b) { PL.speed = +b.dataset.speed; syncPlayer(); } });
+$('#plSpeed').addEventListener('click', ev => { const b = ev.target.closest('[data-speed]'); if (b) { PL.speed = +b.dataset.speed; db.settings.speed = PL.speed; save(true); syncPlayer(); } });
 plDlg.addEventListener('close', plStop);
 function playerKeys(ev) {
   if (ev.target.closest('input[type="range"]') && (ev.key === 'ArrowLeft' || ev.key === 'ArrowRight')) return;
