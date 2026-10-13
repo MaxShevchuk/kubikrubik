@@ -1466,18 +1466,18 @@ if ((db.altSeed | 0) < 2) {
 // settings and other custom algorithms intact.
 const FORMULA_REPAIRS = {
   AE2: {
-    bad: ["U' R' U2 R U F' U' F", "U' R U2 R' U F' U' F"],
-    alg: "U' R U' R' U2 F' U F"
+    bad: ["U' R U' R' U2 F' U F", "U' R U2 R' U F' U' F"],
+    alg: "U' R' U2 R U F' U' F"
   },
   AE8: {
-    bad: ["U' R U R' U' R U2 R"],
-    alg: "U' R U R' U' R U2 R'"
+    bad: ["U' R U R' U' R U2 R'"],
+    alg: "U' R U R' U' R U2 R"
   },
   BM5: {
-    bad: ["R U' R' U R' U' R F' U F", "U R U2 R' U R U2 R' U F' U' F"],
-    alg: "R U' R' U2 R U R' F' U' F"
+    bad: ["R U' R' U2 R U R' F' U' F", "U R U2 R' U R U2 R' U F' U' F"],
+    alg: "R U' R' U R' U' R F' U F"
   }
-};
+};;
 let repairedFormula = false;
 for (const [id, fix] of Object.entries(FORMULA_REPAIRS)) {
   const item = db.groups.F2L.find(it => it.id === id);
@@ -1494,6 +1494,18 @@ for (const [id, fix] of Object.entries(FORMULA_REPAIRS)) {
     cr3.setup = null;
     repairedFormula = true;
   }
+}
+// Update saved preferred formulas too, so a previous local choice cannot restore a known bad sequence.
+if (db.settings.pref) {
+  for (const [id, fix] of Object.entries(FORMULA_REPAIRS)) {
+    const key = 'F2L:' + id;
+    const pref = db.settings.pref[key];
+    if (pref && fix.bad.some(alg => normText(pref) === normText(alg))) {
+      db.settings.pref[key] = normText(fix.alg);
+      repairedFormula = true;
+    }
+  }
+  if (!Object.keys(db.settings.pref).length) delete db.settings.pref;
 }
 if (repairedFormula) save();
 
