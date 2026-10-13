@@ -461,7 +461,7 @@ body {
     .group { break-inside: auto; }
     .cards { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; padding-block: 6px 10px; }
     .wide .cards { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
-    .card { break-inside: avoid; content-visibility: visible; padding: 5px; gap: 4px; border-color: #bbb; }
+    .card { break-inside: avoid; content-visibility: visible; padding: 5px; gap: 4px; border-color: #bbb; translate: none !important; }
     .fig { max-height: 110px; padding: 2px; }
     .alg { font-size: 10.5px; padding: 3px 4px; background: none; }
     .alg.sub, .verdict, .cNum, .useBtn { display: none; }
@@ -912,7 +912,7 @@ body {
     ['BM4', "(R U R' U') R U2 R' U' R U R'"], ['BM5', "R U' R' U2 R U R' F' U' F"], ['BM6', "F' U F U2 R U R' U R U' R'"]
   ];
   const OLL = [
-    ['CR1', "R U2 R' U' (R U R' U') R U' R'"], ['CR2', "R U2 R2 U' R2 U' R2 U2 R"], ['CR3', "L' U R U' L U R'"], ['CR4', "R U' L' U R' U' L"],
+    ['CR1', "R U2 R' U' (R U R' U') R U' R'"], ['CR2', "R U2 R2 U' R2 U' R2 U2 R"], ['CR3', "y R U2 R' U' R U' R'"], ['CR4', "R U' L' U R' U' L"],
     ['CR5', "R2 D' R U2 R' D R U2 R"], ['CR6', "r U R' U' r' F R F'"], ['CR7', "R' F' L' F R F' L F"], ['CR8', ""],
     ['PT1', "R U2 R2 F R F' U2 R' F R F'"], ['PT2', "F (R U R' U') F' f (R U R' U') f'"], ['PT3', "M R U R' U r U2 r' U M'"],
     ['PT4', "M U' r U2 r' U' R U' R2 r"], ['PT5', "r' R U (R U R' U') r R2 F R F'"], ['PT6', "F R U R' d R' U2 R' F R F'"],
@@ -1458,6 +1458,15 @@ for (const [id, fix] of Object.entries(FORMULA_REPAIRS)) {
     repairedFormula = true;
   }
 }
+// OLL CR3: the main formula was replaced on request. Saved copies that still hold the old built-in one get the new one.
+{
+  const cr3 = db.groups.OLL.find(it => it.id === 'CR3');
+  if (cr3 && normText(cr3.alg) === normText("L' U R U' L U R'")) {
+    cr3.alg = "y R U2 R' U' R U' R'";
+    cr3.setup = null;
+    repairedFormula = true;
+  }
+}
 if (repairedFormula) save();
 
 /* ── ui state ────────────────────────────────────────────── */
@@ -1762,8 +1771,26 @@ function render() {
   for (const t of Object.keys(panes)) panes[t].el.hidden = t !== tab;
   if (tab === 'TIMER') timerShow();
   measureBar();
+  centerRows();
   if (ready) schedulePrerender();
 }
+/* A last row of cards that is only partly filled sits in the middle instead of hugging the left edge.
+   The cards stay in the grid (rows keep sharing their tracks); the short row is shifted by half of its
+   empty space with the separate `translate` property, so it never clashes with drag, which uses `transform`. */
+function centerRows() {
+  const pane = curPane();
+  if (!pane) return;
+  for (const grid of pane.querySelectorAll('.cards')) {
+    const cards = [...grid.children].filter(c => c.classList.contains('card'));
+    if (!cards.length) continue;
+    const cs = getComputedStyle(grid);
+    const tracks = cs.gridTemplateColumns.split(' ').map(parseFloat).filter(Number.isFinite);
+    const cols = tracks.length, rest = cols > 1 ? cards.length % cols : 0;
+    const shift = rest ? (cols - rest) * (tracks[0] + (parseFloat(cs.columnGap) || 0)) / 2 : 0;
+    cards.forEach((c, i) => { c.style.translate = rest && i >= cards.length - rest ? shift + 'px 0' : ''; });
+  }
+}
+if (window.ResizeObserver) new ResizeObserver(() => requestAnimationFrame(centerRows)).observe(els.main);
 /* While the app is idle, build the other tabs in the background so the first switch is instant too. */
 function schedulePrerender() { clearTimeout(prTimer); prTimer = setTimeout(prerenderStep, 600); }
 function prerenderStep() {
