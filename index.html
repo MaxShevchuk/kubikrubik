@@ -1356,19 +1356,13 @@ const reduced = () => !!(window.matchMedia && matchMedia('(prefers-reduced-motio
 const KEY = 'rubik-algorithms-v4', LEGACY = ['rubik-algorithm-draft-v3', 'rubik-algorithm-draft-v2'], THEME_KEY = 'rubik-algorithm-theme-v1';
 const store = { get(k) { try { return localStorage.getItem(k); } catch { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch { /* storage unavailable */ } } };
 const STAGES = ['F2L', 'OLL', 'PLL'];
-const VIRTUAL_STAGES = ['2LOOKOLL', '2LOOKPLL'];
-const DATA_STAGES = [...STAGES, ...VIRTUAL_STAGES];
-const TABS = ['F2L', 'OLL', '2LOOKOLL', 'PLL', '2LOOKPLL', 'NOTATION', 'TIMER'];
-const TAB_LABELS = { F2L: 'F2L', OLL: 'OLL', '2LOOKOLL': '2-Look OLL', PLL: 'PLL', '2LOOKPLL': '2-Look PLL', NOTATION: 'Notation', TIMER: 'Timer' };
-const baseStage = stage => stage === '2LOOKOLL' ? 'OLL' : stage === '2LOOKPLL' ? 'PLL' : stage;
+const TABS = ['F2L', 'OLL', 'PLL', 'NOTATION', 'TIMER'];
 const plainTab = t => t === 'NOTATION' || t === 'TIMER';
 const STATUS = ['New', 'Learning', 'Known', 'Automatic'];
 const HINTS = {
   F2L: 'Insert a corner and edge pair into the slot beside the cross. Tap a diagram to watch the formula play.',
   OLL: 'Turn the last layer so the whole top face is one colour. Setup scrambles the cube into the case.',
   PLL: 'Move the last-layer pieces into place. Arrows show where each piece has to go.',
-  '2LOOKOLL': 'First orient the top-layer edges, then orient the corners using a small set of algorithms.',
-  '2LOOKPLL': 'First permute the top-layer corners, then permute the edges to finish the last layer.',
   NOTATION: 'A visual guide to face turns, slices, wide turns and whole-cube rotations.',
   TIMER: 'A speedcube timer with a scramble, optional 15-second inspection and averages of 5 and 12.'
 };
@@ -1380,51 +1374,25 @@ const ALT = {
   OLL: { "CR1": "R' U2 R U R' U' R U R' U R", "CR2": "R' U2 R2 U R2 U R2 U2 R'", "CR3": "U' R U2 R' U' R U' R'", "CR4": "R U R' U R U2 R'", "CR5": "U2 R2 D R' U2 R D' R' U2 R'", "CR6": "F R F' L F R' F' L'", "CR7": "U2 F R' F' r U R U' r'", "PT1": "U R U' R2 D' r U' r' D R2 U R'", "PT2": "U2 F R' F' R U2 F R' F' R2 U2 R'", "PT3": "r' R2 U R' U r U2 r' U M'", "PT4": "M U' r U2 r' U' R U' R' M'", "PT5": "M U R U R' U' M' R' F R F'", "PT6": "U' R U2 R2 F R F' U2 M' U R U' r'", "PT7": "U2 F R' F' R M U R U' R' U' M'", "PT8": "M U R U R' U' M2 U R U' r'", "LN1": "U2 R' U' F R' F' R F R' F' R U R", "LN2": "R U' B2 D B' U2 B D' B2 d B'", "LN3": "U2 F U R U' R' U R U' R' F'", "LN4": "r U r' U R U' R' U R U' R' r U' r'", "SL1": "U' r U2 R' U' R U R' U' R U' r'", "SL2": "U' F R' F2 R U2 R U2 R' F", "SL3": "R' U' R' F R F' R' F R F' U R", "SL4": "U' R' F R F' U2 R2 B' R' B R'", "SL5": "U' F' R U2 R' U2 R' F2 R F'", "SL6": "F R' F' U2 R U R' U R2 U2 R'", "Q1": "F R U' R' U R U2 R' U' F'", "Q2": "U2 r' U2 R U R' U r", "SZ1": "r U R' U R U2 r'", "SZ2": "U2 M' R' U' R U' R' U2 R U' M", "SZ3": "R U' R' U2 R U B U' B' U' R'", "SZ4": "U R' F U F2 U F2 U2 F' U R", "SZ5": "U2 R U2 R' U2 R' F R F'", "SZ6": "U' r' R2 U R' U R U2 R' U M'", "FSH1": "F R' F' R U R U' R'", "FSH2": "U R' U2 R2 B' R' B R' U2 R", "FSH3": "R U R' U' R' F R2 U R' U' F'", "FSH4": "U' F U F' R' F R U' R' F' R", "C1": "U' R' U' R' F R F' U R", "C2": "F' U2 F2 U R U' R2 F' R2 U' R'", "L1": "R' F R U R' F' R F U' F'", "L2": "r' U' r R' U' R U r' U r", "L3": "F U R U2 R' U' R U R' F'", "L4": "U2 r U r' R U R' U' r U' r'", "P1": "U L U F U' F' L'", "P2": "U2 R U B' U' R' U R B R'", "P3": "U' R' U' F' U F R", "P4": "R' U' F U R U' R' F' R", "T1": "F R U' R' U R U R' F'", "T2": "U R' F' U' F U R", "W1": "F' U' F2 R U R' U' F2 U2 F", "W2": "U2 R' U' R U' R' U R U R B' R' B", "Z1": "R' F R U R' U' F' U R", "Z2": "U2 R B' R' U' R U B U' R'", "4C1": "U r U R' U' M U R U' R'", "4C2": "R U R' U' M' U R U' r'" },
   PLL: { "U1": "M2 U M' U2 M U M2", "U2": "M2 U' M' U2 M U' M2", "Z": "M2 U2 M U M2 U M2 U M", "H": "R2 U2 R U2 R2 U2 R2 U2 R U2 R2", "A1": "U R' F R' B2 R F' R' B2 R2", "A2": "U R2 B2 R F R' B2 R F' R", "E": "R B' R' F R B R' F' R B R' F R B' R' F'", "J1": "R U2 R' U' R U2 L' U R' U' L", "J2": "R' U L' U2 R U' R' U2 R L", "T": "F R U' R' U R U R2 F' R U R U' R'", "F": "U R' U2 R' d' R' F' R2 U' R' U R' F R U' F", "Y": "F R' F' R U R U' R' F R U' R' U R U R' F'", "V": "R' U R' d' R' F' R2 U' R' U R' F R F", "R1": "U R2 F R U R U' R' F' R U2 R' U2 R", "R2": "R U R' F' R U2 R' U2 R' F R U R U2 R'", "N1": "L U' R U2 L' U R' L U' R U2 L' U R'", "N2": "R' U R U' R' F' U' F R U R' F R' F' R U' R", "G1": "R2 U R' U R' U' R U' R2 U' D R' U R D'", "G2": "U' D R' U' R D' U R2 U R' U R U' R U' R2", "G3": "U2 R2 U' R U' R U R' U R2 U D' R U' R' D", "G4": "U' D' R U R' D U' R2 U' R U' R' U R' U R2" }
 };
-const TWO_LOOK_CASES = {
-  '2LOOKOLL': [
-    { id: 'EO1', label: 'Line', alg: "F R U R' U' F'" },
-    { id: 'EO2', label: 'L-shape', alg: "F U R U' R' F'" },
-    { id: 'EO3', label: 'Dot', alg: "F R U R' U' F' f R U R' U' f'" },
-    { id: 'CO1', label: 'Sune', alg: "R U R' U R U2 R'" },
-    { id: 'CO2', label: 'Anti-Sune', alg: "R U2 R' U' R U' R'" },
-    { id: 'CO3', label: 'H-case', alg: "R U2 R' U' R U R' U' R U' R'" },
-    { id: 'CO4', label: 'Pi-case', alg: "R U2 R2 U' R2 U' R2 U2 R" },
-    { id: 'CO5', label: 'U-case', alg: "R2 D R' U2 R D' R' U2 R'" },
-    { id: 'CO6', label: 'T-case', alg: "r U R' U' r' F R F'" },
-    { id: 'CO7', label: 'L-case', alg: "F' r U R' U' r' F R" }
-  ],
-  '2LOOKPLL': [
-    { id: 'CP1', label: 'Aa-perm', alg: ALT.PLL.A1 },
-    { id: 'CP2', label: 'Ab-perm', alg: ALT.PLL.A2 },
-    { id: 'CP3', label: 'E-perm', alg: ALT.PLL.E },
-    { id: 'EP1', label: 'Ua-perm', alg: ALT.PLL.U1 },
-    { id: 'EP2', label: 'Ub-perm', alg: ALT.PLL.U2 },
-    { id: 'EP3', label: 'H-perm', alg: ALT.PLL.H },
-    { id: 'EP4', label: 'Z-perm', alg: ALT.PLL.Z }
-  ]
-};
 const defaultAlg = (stage, id) => (D[stage].find(x => x[0] === id) || [0, ''])[1];
 
 function defaultGroups() {
   const g = {};
   for (const s of STAGES) g[s] = D[s].map(([id, alg]) => ({ id, alg, alts: ALT[s] && ALT[s][id] ? [ALT[s][id]] : [], setup: null }));
-  for (const s of VIRTUAL_STAGES) g[s] = TWO_LOOK_CASES[s].map(it => ({ ...it, alts: [], setup: null }));
   return g;
 }
 function cleanItem(it) {
   const o = { id: String(it && it.id != null ? it.id : '').trim(), alg: typeof (it && it.alg) === 'string' ? it.alg : '', alts: [], setup: null };
   if (Array.isArray(it && it.alts)) o.alts = it.alts.filter(a => typeof a === 'string');
-  if (typeof (it && it.label) === 'string' && it.label.trim()) o.label = it.label.trim();
   if (it && typeof it.setup === 'string' && it.setup.trim()) o.setup = it.setup;
   if (it && typeof it.image === 'string' && it.image) o.image = it.image;
   return o;
 }
 function hydrate(saved) {
   const out = { v: 4, altSeed: saved.altSeed | 0, groups: {}, progress: {}, settings: {} };
-  for (const s of DATA_STAGES) {
+  for (const s of STAGES) {
     const seen = new Set();
-    const source = Array.isArray(saved.groups && saved.groups[s]) ? saved.groups[s] : (VIRTUAL_STAGES.includes(s) ? TWO_LOOK_CASES[s] : []);
-    out.groups[s] = source.map(cleanItem).filter(it => it.id && !seen.has(it.id) && seen.add(it.id));
+    out.groups[s] = (Array.isArray(saved.groups && saved.groups[s]) ? saved.groups[s] : []).map(cleanItem).filter(it => it.id && !seen.has(it.id) && seen.add(it.id));
   }
   if (saved.progress && typeof saved.progress === 'object') {
     for (const [k, p] of Object.entries(saved.progress)) {
@@ -1600,27 +1568,26 @@ function infoFor(stage, state) {
   return { cls: E.pllClass(state) };
 }
 function analyze(stage, alg) {
-  const targetStage = baseStage(stage);
   const key = stage + '|' + alg;
   if (vcache.has(key)) return vcache.get(key);
   const text = (alg || '').trim();
   let r;
-  if (!text) r = { status: 'empty', moves: [], len: 0, state: E.SOLVED, auf: [], msg: 'No formula yet.', info: targetStage === 'F2L' ? null : infoFor(targetStage, E.SOLVED) };
+  if (!text) r = { status: 'empty', moves: [], len: 0, state: E.SOLVED, auf: [], msg: 'No formula yet.', info: stage === 'F2L' ? null : infoFor(stage, E.SOLVED) };
   else {
     const p = E.parseAlg(text);
     if (p.errors.length) r = { status: 'syntax', moves: [], len: 0, state: null, auf: [], msg: 'Unknown move' + (p.errors.length > 1 ? 's' : '') + ': ' + p.errors.slice(0, 4).join(' ') };
     else if (!p.moves.length) r = { status: 'empty', moves: [], len: 0, state: E.SOLVED, auf: [], msg: 'No formula yet.', info: null };
     else {
-      const k = E.buildCase(targetStage, p.moves);
+      const k = E.buildCase(stage, p.moves);
       if (!k) {
         const st = E.caseState(p.moves);
-        r = { status: 'bad', moves: p.moves, len: E.moveCount(p.moves), state: st, auf: [], msg: 'This formula does not solve a ' + ST_WORD[targetStage] + '. Check it for a typo.', info: null };
+        r = { status: 'bad', moves: p.moves, len: E.moveCount(p.moves), state: st, auf: [], msg: 'This formula does not solve a ' + ST_WORD[stage] + '. Check it for a typo.', info: null };
       } else {
-        const pre = E.stagePrecondition(k.state, targetStage);
+        const pre = E.stagePrecondition(k.state, stage);
         r = {
           status: pre ? 'ok' : 'warn', moves: p.moves, len: E.moveCount(p.moves), state: k.state, auf: k.auf,
-          msg: pre ? 'Verified: the formula solves this case.' : (targetStage === 'F2L' ? 'This formula also disturbs another slot. It is probably a typo.' : 'This formula also breaks the solved layers. It is probably a typo.'),
-          info: pre ? infoFor(targetStage, k.state) : null
+          msg: pre ? 'Verified: the formula solves this case.' : (stage === 'F2L' ? 'This formula also disturbs another slot. It is probably a typo.' : 'This formula also breaks the solved layers. It is probably a typo.'),
+          info: pre ? infoFor(stage, k.state) : null
         };
       }
     }
@@ -1639,14 +1606,7 @@ const PLL_CLASSES = {
   other: ['Other', 'Formulas that cannot be matched to a PLL type.']
 };
 function groupOf(stage, item, v) {
-  if (stage === '2LOOKOLL') return item.id.startsWith('EO')
-    ? { key: 'eo', code: 'Step 1 · Edge orientation' }
-    : { key: 'co', code: 'Step 2 · Corner orientation' };
-  if (stage === '2LOOKPLL') return item.id.startsWith('CP')
-    ? { key: 'cp', code: 'Step 1 · Corner permutation' }
-    : { key: 'ep', code: 'Step 2 · Edge permutation' };
-  const targetStage = baseStage(stage);
-  if (targetStage === 'PLL') {
+  if (stage === 'PLL') {
     const cls = v.info && v.info.cls ? v.info.cls : 'other';
     return { key: 'cls:' + cls, code: PLL_CLASSES[cls][0] };
   }
@@ -1656,18 +1616,11 @@ function groupOf(stage, item, v) {
 }
 const rng = a => { const lo = Math.min(...a), hi = Math.max(...a); return lo === hi ? String(lo) : lo + '–' + hi; };
 function describe(stage, key, entries) {
-  if (stage === '2LOOKOLL') return key === 'eo'
-    ? 'Orient all top-layer edges before moving on to the corners.'
-    : 'Once all top edges point up, orient the four corners.';
-  if (stage === '2LOOKPLL') return key === 'cp'
-    ? 'Put all four top-layer corners in their correct positions.'
-    : 'Finish by permuting the four top-layer edges.';
-  const targetStage = baseStage(stage);
-  if (targetStage === 'PLL') return PLL_CLASSES[key.slice(4)][1];
+  if (stage === 'PLL') return PLL_CLASSES[key.slice(4)][1];
   const infos = entries.map(e => e.v.info).filter(Boolean);
   if (!infos.length) return '';
   const uniq = f => [...new Set(infos.map(f).filter(Boolean))];
-  if (targetStage === 'F2L') return 'Corner ' + uniq(i => i.c).join(' or ') + '. Edge ' + uniq(i => i.e).join(' or ') + '.';
+  if (stage === 'F2L') return 'Corner ' + uniq(i => i.c).join(' or ') + '. Edge ' + uniq(i => i.e).join(' or ') + '.';
   const adj = uniq(i => i.adj);
   return 'Edges oriented: ' + rng(infos.map(i => i.e)) + (adj.length ? ' (' + adj.join(' or ') + ')' : '') + '. Corners oriented: ' + rng(infos.map(i => i.c)) + '.';
 }
@@ -1681,7 +1634,7 @@ function stageEntries(stage) {
 const norm = s => String(s).toLowerCase().replace(/[’‘′´`]/g, "'");
 function matchQuery(item, q) {
   const nq = norm(q).trim();
-  if (norm(item.id).includes(nq) || (item.label && norm(item.label).includes(nq))) return true;
+  if (norm(item.id).includes(nq)) return true;
   const pq = E.parseAlg(q);
   if (pq.errors.length || !pq.moves.length) return false;
   const needle = ' ' + E.algText(pq.moves) + ' ';
@@ -1728,8 +1681,7 @@ function tokensHTML(text, auf) {
   return out;
 }
 function diagramHTML(stage, v, item) {
-  stage = baseStage(stage);
-  if (v.state) return R.caseSVG(stage, v.state, (item.label || item.id) + ' case diagram');
+  if (v.state) return R.caseSVG(stage, v.state, item.id + ' case diagram');
   if (item.image) return '<img src="' + esc(item.image) + '" alt="' + esc(item.id) + '" loading="lazy" referrerpolicy="no-referrer">';
   return '<svg class="cube" viewBox="0 0 120 120" role="img" aria-label="No diagram"><rect x="14" y="14" width="92" height="92" rx="12" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="5 5" opacity=".4"/><text x="60" y="72" text-anchor="middle" font-size="40" font-weight="700" fill="currentColor" opacity=".4">?</text></svg>';
 }
@@ -1747,7 +1699,7 @@ function verdictHTML(v) {
   return '<div class="verdict ' + cls + '" role="note">' + (v.status === 'empty' ? '' : I.warn) + '<span>' + esc(v.msg) + '</span></div>';
 }
 function cardHTML(stage, e, number) {
-  const { item, v, st } = e, id = esc(item.id), label = esc(item.label || item.id), edit = ui.edit;
+  const { item, v, st } = e, id = esc(item.id), edit = ui.edit;
   const setupText = item.setup != null ? item.setup : (v.moves.length ? invertText(item.alg) : '');
   let formulas, setupTop = '<div class="setupTop"></div>';
   if (edit) {
@@ -1766,7 +1718,7 @@ function cardHTML(stage, e, number) {
       ((vf.len || vf.auf.length) ? '<div class="meta"><span>' + vf.len + ' move' + (vf.len === 1 ? '' : 's') + '</span>' + (vf.auf.length ? '<span>then ' + E.algText(vf.auf) + '</span>' : '') + '</div>' : '') + '</div>';
   }
   return '<article class="card" data-id="' + id + '" data-status="' + st + '" data-verdict="' + v.status + '" style="view-transition-name:c-' + stage + '-' + safeName(item.id) + '">' +
-    '<div class="cardHead"><span class="cNum">' + String(number).padStart(2, '0') + '</span><h3 class="cName">' + label + '</h3>' +
+    '<div class="cardHead"><span class="cNum">' + String(number).padStart(2, '0') + '</span><h3 class="cName">' + id + '</h3>' +
     '<span class="okSlot">' + (v.status === 'ok' ? I.check : '') + '</span>' +
     '<span class="tools-edit"><button type="button" class="mini grip" data-act="grip" aria-label="Drag ' + id + ' to reorder" title="Drag to reorder">' + I.grip + '</button><button type="button" class="mini" data-act="up" aria-label="Move ' + id + ' up" title="Move up">' + I.up + '</button><button type="button" class="mini" data-act="down" aria-label="Move ' + id + ' down" title="Move down">' + I.down + '</button><button type="button" class="mini del" data-act="del" aria-label="Delete ' + id + '" title="Delete">' + I.trash + '</button></span>' +
     '<button type="button" class="stat" data-act="status" aria-label="' + id + ' status: ' + STATUS[st] + '. Tap to change." title="Status: ' + STATUS[st] + '"><span class="pips"><i></i><i></i><i></i></span><span class="t">' + STATUS[st] + '</span></button></div>' +
@@ -1781,11 +1733,10 @@ function ringHTML(frac) {
   return '<svg class="ring" viewBox="0 0 20 20" aria-hidden="true"><circle class="bg" cx="10" cy="10" r="8"/><circle class="fg" cx="10" cy="10" r="8" stroke-dasharray="' + (frac * c).toFixed(1) + ' ' + c.toFixed(1) + '"/></svg>';
 }
 function renderTabs() {
-  const tabs = TABS.map(s => {
-    if (plainTab(s)) return { id: s, label: TAB_LABELS[s], ring: null };
+  const tabs = [...STAGES.map(s => {
     const total = db.groups[s].length, known = db.groups[s].filter(it => statusOf(s, it.id) >= 2).length;
-    return { id: s, label: TAB_LABELS[s], ring: total ? known / total : 0, n: known + '/' + total, tip: known + ' of ' + total + ' cases known' };
-  });
+    return { id: s, label: s, ring: total ? known / total : 0, n: known + '/' + total, tip: known + ' of ' + total + ' cases known' };
+  }), { id: 'NOTATION', label: 'Notation', ring: null }, { id: 'TIMER', label: 'Timer', ring: null }];
   els.tabs.innerHTML = tabs.map(t => '<button type="button" role="tab" class="tab" data-tab="' + t.id + '" aria-selected="' + (t.id === ui.tab) + '"' + (t.tip ? ' title="' + t.tip + '"' : '') + '>' + (t.ring == null ? '' : ringHTML(t.ring)) + '<span>' + t.label + '</span>' + (t.n ? '<span class="n">' + t.n + '</span>' : '') + '</button>').join('');
   const sel = els.tabs.querySelector('[aria-selected="true"]'); if (sel && els.tabs.scrollWidth > els.tabs.clientWidth) sel.scrollIntoView({ inline: 'nearest', block: 'nearest' });
 }
@@ -1817,7 +1768,7 @@ function buildPane(tab, filter) {
   const p = paneFor(tab), pt = ui.tab, pf = ui.filter;
   ui.tab = tab; ui.filter = filter;
   try {
-    const head = '<div class="sectionHead"><h2>' + TAB_LABELS[tab] + '</h2><p>' + HINTS[tab] + '</p></div>';
+    const head = '<div class="sectionHead"><h2>' + (tab === 'NOTATION' ? 'Notation' : tab === 'TIMER' ? 'Timer' : tab) + '</h2><p>' + HINTS[tab] + '</p></div>';
     if (tab === 'TIMER') { if (p.key !== 'timer') { p.el.innerHTML = head + timerHTML(); p.key = 'timer'; } return p; }
     if (tab === 'NOTATION') { if (p.key !== 'n') { p.el.innerHTML = head + notationHTML(); p.key = 'n'; } return p; }
     const key = paneKey();
@@ -1886,7 +1837,7 @@ function schedulePrerender() { clearTimeout(prTimer); prTimer = setTimeout(prere
 function prerenderStep() {
   const idle = window.requestIdleCallback || (f => setTimeout(() => f(), 40));
   idle(() => {
-    for (const t of ['OLL', '2LOOKOLL', 'PLL', '2LOOKPLL', 'F2L', 'NOTATION', 'TIMER']) {
+    for (const t of ['OLL', 'PLL', 'F2L', 'NOTATION', 'TIMER']) {
       if (t === ui.tab) continue;
       const p = panes[t];
       const stale = !p || (t === 'NOTATION' ? p.key !== 'n' : t === 'TIMER' ? p.key !== 'timer' : p.key !== dataVer + '|' + ui.q + '|all|' + ui.edit);
@@ -2078,7 +2029,7 @@ if (window.ResizeObserver) new ResizeObserver(measureBar).observe(els.sticky);
 /* ── add case ────────────────────────────────────────────── */
 const addDlg = $('#addDlg');
 function openAdd() {
-  $('#addForm').reset(); $('#addErr').textContent = ''; $('#addTitle').textContent = 'Add ' + TAB_LABELS[ui.tab] + ' case'; $('#addPreview').innerHTML = ''; $('#addVerdict').textContent = 'Type a formula to see the diagram.';
+  $('#addForm').reset(); $('#addErr').textContent = ''; $('#addTitle').textContent = 'Add ' + ui.tab + ' case'; $('#addPreview').innerHTML = ''; $('#addVerdict').textContent = 'Type a formula to see the diagram.';
   addDlg.showModal(); setTimeout(() => $('#addName').focus(), 0);
 }
 function addPreview() {
@@ -2108,7 +2059,7 @@ const angleOf = mv => { const d = E.MOVE_DEFS[mv.letter], t = mv.turns === 2 ? 2
 function openPlayer(stage, id) {
   const item = itemOf(stage, id); if (!item) return;
   PL.stage = stage; PL.id = id; PL.texts = formulasOf(stage, item); PL.sel = 0;
-  $('#plStage').textContent = (TAB_LABELS[stage] || stage) + ' case'; $('#plTitle').textContent = item.label || id;
+  $('#plStage').textContent = stage + ' case'; $('#plTitle').textContent = id;
   plDlg.showModal(); loadSeq();
 }
 function loadSeq() {
@@ -2142,7 +2093,7 @@ function syncPlayer() {
 function draw() {
   const a = PL.anim, state = PL.states[PL.pos];
   let svg;
-  if (PL.view === 'top') { const stage = baseStage(PL.stage); svg = R.topSVG(state, { mode: stage === 'OLL' ? 'oll' : stage === 'PLL' ? 'pll' : 'full', label: 'Top view' }); }
+  if (PL.view === 'top') svg = R.topSVG(state, { mode: PL.stage === 'OLL' ? 'oll' : PL.stage === 'PLL' ? 'pll' : 'full', label: 'Top view' });
   else {
     const view = PL.view === 'back' ? R.VIEW_DBL : R.VIEW_UFR(0);
     if (a) { const d = E.MOVE_DEFS[a.mv.letter]; svg = R.frameSVG(a.base, { view, size: 360, rot: { axis: d.axis, layers: d.layers, angle: angleOf(a.mv) * ease(a.t) } }); }
@@ -2203,7 +2154,7 @@ function playerKeys(ev) {
 /* ── drill (Leitner boxes) ───────────────────────────────── */
 const drDlg = $('#drill'), DR = { stage: '', queue: [], i: 0, shown: false, stats: { 1: 0, 2: 0, 3: 0, 4: 0 }, total: 0, mode: 'recall', all: false, fresh: true, t0: 0, ms: 0, tick: 0, pick: null, opts: [], times: [] };
 const INTERVALS = [0, 1, 3, 7, 21];
-const FAST = { F2L: 8000, OLL: 5000, PLL: 5000, '2LOOKOLL': 5000, '2LOOKPLL': 5000 }; // answers at least this quick count as Easy
+const FAST = { F2L: 8000, OLL: 5000, PLL: 5000 }; // answers at least this quick count as Easy
 const fmtT = ms => (ms / 1000).toFixed(1) + ' s';
 const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 function stopTick() { clearInterval(DR.tick); DR.tick = 0; }
@@ -2220,7 +2171,7 @@ function startDrill(all) {
   DR.stage = stage; DR.all = !!all; DR.mode = db.settings.drillMode === 'recognise' ? 'recognise' : 'recall';
   DR.queue = q.map(e => e.item.id); DR.i = 0; DR.shown = false; DR.fresh = true; DR.pick = null; DR.times = [];
   DR.stats = { 1: 0, 2: 0, 3: 0, 4: 0 }; DR.total = q.length; DR.valid = valid.length;
-  $('#drStage').textContent = 'Drill · ' + TAB_LABELS[stage];
+  $('#drStage').textContent = 'Drill · ' + stage;
   drawDrill();
 }
 function openDrill(all) {
@@ -2247,11 +2198,10 @@ function drawDrill() {
     stopTick();
     const s = DR.stats, n = DR.total, avg = DR.times.length ? DR.times.reduce((x, y) => x + y, 0) / DR.times.length : 0;
     body.innerHTML = '<div class="dName">Session done</div><p class="msg">' + n + ' card' + (n === 1 ? '' : 's') + ' reviewed. Forgot ' + s[1] + ', hard ' + s[2] + ', good ' + s[3] + ', easy ' + s[4] + '.' + (avg ? ' Average answer time ' + fmtT(avg) + '.' : '') + '</p>' +
-      '<div class="dlgActions"><button class="btn" type="button" id="drAgain">Practise ' + TAB_LABELS[DR.stage] + ' again</button><button class="btn primary" type="button" data-close-drill>Close</button></div>';
+      '<div class="dlgActions"><button class="btn" type="button" id="drAgain">Practise ' + DR.stage + ' again</button><button class="btn primary" type="button" data-close-drill>Close</button></div>';
     $('#drAgain').onclick = () => openDrill(true); $('[data-close-drill]', body).onclick = () => drDlg.close(); return;
   }
   const id = DR.queue[DR.i], item = itemOf(DR.stage, id); if (!item) { DR.i++; drawDrill(); return; }
-  const itemLabel = item.label || id;
   const v = analyze(DR.stage, item.alg), p = prog(DR.stage, id), box = p ? p.box : 0;
   const answered = DR.mode === 'recognise' ? DR.pick != null : DR.shown;
   if (DR.fresh) {
@@ -2263,14 +2213,14 @@ function drawDrill() {
   if (DR.mode === 'recognise') {
     const right = DR.pick != null && DR.opts[DR.pick] === id;
     const opts = DR.opts.map((oid, k) => {
-      const oi = itemOf(DR.stage, oid), ov = analyze(DR.stage, oi.alg), optionLabel = oi.label || oid;
+      const oi = itemOf(DR.stage, oid), ov = analyze(DR.stage, oi.alg);
       const cls = DR.pick == null ? '' : oid === id ? ' right' : k === DR.pick ? ' wrong' : ' dim';
-      return '<button type="button" class="opt' + cls + '" data-opt="' + k + '"' + (DR.pick != null ? ' disabled' : '') + ' aria-label="Picture ' + (k + 1) + (DR.pick != null ? ': ' + esc(optionLabel) : '') + '">' + diagramHTML(DR.stage, ov, oi) + '<kbd aria-hidden="true">' + (k + 1) + '</kbd>' + (DR.pick != null ? '<span class="oname">' + esc(optionLabel) + '</span>' : '') + '</button>';
+      return '<button type="button" class="opt' + cls + '" data-opt="' + k + '"' + (DR.pick != null ? ' disabled' : '') + ' aria-label="Picture ' + (k + 1) + (DR.pick != null ? ': ' + esc(oid) : '') + '">' + diagramHTML(DR.stage, ov, oi) + '<kbd aria-hidden="true">' + (k + 1) + '</kbd>' + (DR.pick != null ? '<span class="oname">' + esc(oid) + '</span>' : '') + '</button>';
     }).join('');
     body.innerHTML = info + '<div class="formulas">' + algBlock(item.alg, item.alg, '', 'Which case does this solve?', v.auf).replace(/ data-act="copy"/, '') + '</div>' +
       '<div class="opts" role="group" aria-label="Pick the matching picture">' + opts + '</div>' +
       (DR.pick == null ? '<p class="msg">Pick the picture, or press 1–' + DR.opts.length + '.</p>'
-        : '<p class="msg ' + (right ? 'good' : 'badm') + '" role="status">' + (right ? 'Correct' : 'It was ' + esc(itemLabel)) + ' · ' + fmtT(DR.ms) + (right && DR.ms <= FAST[DR.stage] ? ' · quick' : '') + '</p><div class="dlgActions"><button class="btn primary" type="button" id="drNext">Next <kbd>Space</kbd></button></div>');
+        : '<p class="msg ' + (right ? 'good' : 'badm') + '" role="status">' + (right ? 'Correct' : 'It was ' + esc(id)) + ' · ' + fmtT(DR.ms) + (right && DR.ms <= FAST[DR.stage] ? ' · quick' : '') + '</p><div class="dlgActions"><button class="btn primary" type="button" id="drNext">Next <kbd>Space</kbd></button></div>');
     const nx = $('#drNext'); if (nx) { nx.onclick = nextDrill; nx.focus(); } else { const f = $('.opt', body); if (f) f.focus({ preventScroll: true }); }
     return;
   }
@@ -2279,7 +2229,7 @@ function drawDrill() {
   body.innerHTML = info +
     '<div class="dFig">' + diagramHTML(DR.stage, v, item) + '</div>' +
     (DR.shown
-      ? '<div class="dName">' + esc(itemLabel) + '</div><div class="formulas">' + algBlock(fl[0], fl[0], '', 'Algorithm', analyze(DR.stage, fl[0]).auf) + fl.slice(1).map((a, i) => algBlock(a, a, 'sub', 'Alternative ' + (i + 1))).join('') + '</div>' +
+      ? '<div class="dName">' + esc(id) + '</div><div class="formulas">' + algBlock(fl[0], fl[0], '', 'Algorithm', analyze(DR.stage, fl[0]).auf) + fl.slice(1).map((a, i) => algBlock(a, a, 'sub', 'Alternative ' + (i + 1))).join('') + '</div>' +
         '<p class="msg">Recalled in ' + fmtT(DR.ms) + (quick ? ' · quick, so Easy fits' : '') + '</p>' +
         '<div class="rate" role="group" aria-label="How well did you recall it?"><button type="button" class="r1" data-rate="1">Forgot<small>1</small></button><button type="button" class="r2" data-rate="2">Hard<small>2</small></button><button type="button" class="r3" data-rate="3">Good<small>3</small></button><button type="button" class="r4' + (quick ? ' sug' : '') + '" data-rate="4">Easy<small>4</small></button></div>'
       : '<p class="msg">Recall the formula, then reveal it.</p><div class="dlgActions"><button class="btn primary" type="button" id="drShow">Show formula <kbd>Space</kbd></button></div>');
@@ -2369,7 +2319,7 @@ function checkBackup(text) {
   try {
     const o = JSON.parse(text);
     if (!o || !o.groups || !STAGES.every(s => Array.isArray(o.groups[s]))) throw new Error('shape');
-    const h = hydrate(o), n = DATA_STAGES.reduce((a, s) => a + h.groups[s].length, 0);
+    const h = hydrate(o), n = STAGES.reduce((a, s) => a + h.groups[s].length, 0);
     pending = h; bkMsg('This backup holds ' + n + ' cases. Press again to replace your current data.', true);
     $('#bkRestore').textContent = 'Replace my data';
   } catch { pending = null; $('#bkRestore').textContent = 'Check backup'; bkMsg('That is not a backup from this site.', false); }
@@ -2524,7 +2474,7 @@ addEventListener('keydown', ev => {
   if (ui.tab === 'TIMER' && timerKeys(ev)) return;
   const k = ev.key;
   if (k === '/') { if (!plainTab(ui.tab)) { ev.preventDefault(); els.search.focus(); els.search.select(); } }
-  else if (k >= '1' && k <= '7') setTab(TABS[+k - 1]);
+  else if (k >= '1' && k <= '5') setTab(TABS[+k - 1]);
   else if (k === 'e' || k === 'E') { if (!plainTab(ui.tab)) toggleEdit(); }
   else if (k === 'd' || k === 'D') openDrill();
   else if (k === 't' || k === 'T') toggleTheme();
@@ -2536,19 +2486,6 @@ addEventListener('keydown', ev => {
    here and swapped in place; formulas, case names and diagrams are never touched. */
 const UK = {
   'Rubik Algorithms': 'Алгоритми кубика Рубіка', 'My Algorithms': 'Мої алгоритми', '3×3 speedcube': 'Спідкубінг 3×3',
-  '2-Look OLL': 'OLL за два етапи', '2-Look PLL': 'PLL за два етапи',
-  'First orient the top-layer edges, then orient the corners using a small set of algorithms.': 'Спочатку зорієнтуй ребра верхнього шару, а потім кути за допомогою короткого набору алгоритмів.',
-  'First permute the top-layer corners, then permute the edges to finish the last layer.': 'Спочатку розстав кути верхнього шару, а потім ребра, щоб завершити останній шар.',
-  'Step 1 · Edge orientation': 'Крок 1 · Орієнтація ребер', 'Step 2 · Corner orientation': 'Крок 2 · Орієнтація кутів',
-  'Step 1 · Corner permutation': 'Крок 1 · Перестановка кутів', 'Step 2 · Edge permutation': 'Крок 2 · Перестановка ребер',
-  'Orient all top-layer edges before moving on to the corners.': 'Зорієнтуй усі ребра верхнього шару, перш ніж переходити до кутів.',
-  'Once all top edges point up, orient the four corners.': 'Коли всі ребра верхнього шару зорієнтовані, зорієнтуй чотири кути.',
-  'Put all four top-layer corners in their correct positions.': 'Розстав усі чотири кути верхнього шару на правильні місця.',
-  'Finish by permuting the four top-layer edges.': 'На завершення розстав чотири ребра верхнього шару.',
-  'Line': 'Лінія', 'L-shape': 'Форма L', 'Dot': 'Крапка', 'Sune': 'Сун', 'Anti-Sune': 'Анти-сун',
-  'H-case': 'Випадок H', 'Pi-case': 'Випадок π', 'U-case': 'Випадок U', 'T-case': 'Випадок T', 'L-case': 'Випадок L',
-  'Aa-perm': 'Aa-перестановка', 'Ab-perm': 'Ab-перестановка', 'E-perm': 'E-перестановка',
-  'Ua-perm': 'Ua-перестановка', 'Ub-perm': 'Ub-перестановка', 'H-perm': 'H-перестановка', 'Z-perm': 'Z-перестановка',
   'Notation': 'Нотація', 'All': 'Усі', 'New': 'Нові', 'Learning': 'Вчу', 'Known': 'Знаю', 'Automatic': 'Автоматично', 'Due': 'До повтору', 'Issues': 'Помилки',
   'Drill': 'Тренування', 'Edit': 'Редагувати', 'Done': 'Готово', 'Add case': 'Додати випадок', 'New case': 'Новий випадок', 'Case name': 'Назва випадку', 'Formula': 'Формула',
   'Cancel': 'Скасувати', 'Close': 'Закрити', 'Confirm': 'Підтвердити', 'Remove': 'Видалити', 'Delete': 'Видалити', 'Undo': 'Скасувати дію', 'Copied': 'Скопійовано',
