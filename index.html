@@ -2560,7 +2560,7 @@ const UK = {
   'Like R': 'Як R', 'Like R, reversed': 'Як R, навпаки', 'Like U': 'Як U', 'Like U, reversed': 'Як U, навпаки', 'Like F': 'Як F', 'Like F, reversed': 'Як F, навпаки',
   '180° turns': 'Оберти на 180°', 'A 2 after a letter is a half-turn. The direction does not matter: U2 and U2′ end in the same position.': 'Цифра 2 після літери — пів оберту. Напрямок неважливий: U2 і U2′ дають однакове положення.',
   'Middle slice': 'Середній зріз', 'White on top': 'Білий угорі', 'Yellow on top': 'Жовтий угорі', 'Add F2L case': 'Додати випадок F2L',
-  'Bottom two layers': 'Два нижні шари', 'Left two layers': 'Два ліві шари', 'Up': 'Верх'
+  'Bottom two layers': 'Два нижні шари', 'Left two layers': 'Два ліві шари', 'Up': 'Верх', 'Scan cube': 'Сканувати кубик'
 };
 Object.assign(UK, {
   'Timer': 'Таймер', 'A speedcube timer with a scramble, optional 15-second inspection and averages of 5 and 12.': 'Таймер для спідкубінгу зі скрамблом, необов’язковим оглядом на 15 секунд і середніми за 5 та 12 складань.',
@@ -2655,6 +2655,8 @@ function setLanguage(lang) {
   }
   document.documentElement.lang = lang === 'uk' ? 'uk' : 'en';
   document.title = lang === 'uk' ? UK['Rubik Algorithms'] : 'Rubik Algorithms';
+  const scannerLink = document.getElementById('scannerBtn');
+  if (scannerLink) scannerLink.href = 'scanner-cfop.html?lang=' + (lang === 'uk' ? 'uk' : 'en');
   if (lang !== 'uk') return;
   ukTree(document.body);
   ukObs = new MutationObserver(recs => {
