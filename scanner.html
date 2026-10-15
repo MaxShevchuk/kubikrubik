@@ -132,7 +132,7 @@ p{margin:0}
       <div class="stage" id="stage">
         <video id="video" autoplay muted playsinline aria-label="Live camera preview"></video>
         <div class="scan-grid" id="scanGrid" aria-hidden="true"></div>
-        <div class="stage-hint" data-i18n="stageHint">Fit all 9 stickers inside the square</div>
+        <div class="stage-hint" data-i18n="stageHint">Align the face corners with the square corners</div>
       </div>
       <canvas id="canvas" hidden></canvas>
       <div class="controls">
@@ -166,6 +166,7 @@ p{margin:0}
     <div id="countStatus" class="status" role="status" aria-live="polite"></div>
     <div class="face-cards" id="faceCards"></div>
     <p class="result-foot" data-i18n="limitsText">This checks sticker colors and counts only. It does not verify every corner/edge permutation or generate a solution.</p>
+    <p class="privacy" data-i18n="orientationHelp"><strong>Before following the solution:</strong> white center on top, green center facing you, red center on your right. Keep the cube in this orientation while doing the moves.</p>
     <div class="result-actions">
       <button class="btn primary" id="solveCube" type="button">Solve cube</button>
       <button class="btn" id="copySolution" type="button" hidden>Copy solution</button>
@@ -229,13 +230,13 @@ en: {
   copied:"Face colors copied as JSON.", copyError:"Clipboard access was blocked. Select and copy from your browser manually.",
   copiedUnsupported:"Clipboard unavailable. Try again on HTTPS.", cameraStopped:"Camera stopped.",
   retakeHint:"Capture the same face again, then confirm it.", resultIntro:"Check the recognized colors and fix any mistakes before copying.",
-  startOver:"Start a new scan"
+  startOver:"Start a new scan", orientationHelp:"Before following the solution: white center on top, green center facing you, red center on your right. Keep the cube in this orientation while doing the moves.", solveCube:"Solve cube", solving:"Checking cube and calculating solution…", solveBadCounts:"Each color must appear exactly nine times. Correct the stickers first.", solveInvalid:"This is not a valid 3×3 cube state. Check sticker colors and the orientation of the scanned faces.", solveFailed:"Could not find a solution. Check the scan and try again.", solveSolved:"The cube is already solved.", solveDone:"Solution found: {n} moves.", solutionTitle:"Solution", solutionNotation:"R = right/red face, U = top/white face, F = front/green face. An apostrophe means counterclockwise; 2 means a half-turn. Look directly at the face being turned.", solutionCopied:"Solution copied.", solverLoading:"Preparing the solver (first run may take a few seconds)…", solveAlreadySolvedHint:"No moves are needed. The scanned faces are already solved."
 },
 uk: {
   pageTitle:"Сканер кубика — Мої алгоритми", brandEyebrow:"СПІДКУБІНГ 3×3", brandTitle:"Сканер кубика", back:"Алгоритми",
   eyebrow:"КАМЕРА", title:"Проскануй кубик", intro:"Проскануй кожну грань стандартного кубика 3×3. Камера зчитує кольори наліпок і зіставляє їх за шістьма центральними наліпками.",
   localTitle:"Уся обробка на цьому пристрої.", localText:"Кадри аналізуються у браузері; фото не надсилаються на сервер.",
-  stageHint:"Умісти всі 9 наліпок у квадрат", startCamera:"Увімкнути камеру", capture:"Зняти грань", retake:"Пересканувати", confirmNext:"Підтвердити й далі", finish:"Завершити сканування",
+  stageHint:"Сумісти кути грані з кутами рамки", startCamera:"Увімкнути камеру", capture:"Зняти грань", retake:"Пересканувати", confirmNext:"Підтвердити й далі", finish:"Завершити сканування",
   stepsTitle:"Порядок сканування", lightTitle:"Важливе освітлення.", lightText:"Використовуй яскраве рівномірне світло. Уникай відблисків і тіней, тримай грань прямо до камери та перевіряй результат перед продовженням.",
   resultsTitle:"Розпізнані наліпки", resultsSub:"Натисни будь-яку наліпку, крім центральної, щоб перемикати кольори й виправити помилку. Кожен колір має траплятися рівно дев’ять разів.",
   limitsText:"Перевіряються лише кольори й їхня кількість. Перестановки кутів і ребер не перевіряються, розв’язок не обчислюється.",
@@ -260,7 +261,7 @@ uk: {
   copied:"Кольори граней скопійовано як JSON.", copyError:"Браузер заблокував буфер обміну. Скопіюй вручну.",
   copiedUnsupported:"Буфер обміну недоступний. Спробуй через HTTPS.", cameraStopped:"Камеру вимкнено.",
   retakeHint:"Зніми цю саму грань ще раз і підтвердь.", resultIntro:"Перевір розпізнані кольори й виправ помилки перед копіюванням.",
-  startOver:"Почати нове сканування"
+  startOver:"Почати нове сканування", orientationHelp:"Перед виконанням розв’язку: білий центр угорі, зелений — до тебе, червоний — праворуч. Не змінюй це положення кубика під час ходів.", solveCube:"Зібрати кубик", solving:"Перевіряю кубик і обчислюю розв’язок…", solveBadCounts:"Кожен колір має траплятися рівно дев’ять разів. Спочатку виправ наліпки.", solveInvalid:"Це невалідний стан кубика 3×3. Перевір кольори та орієнтацію просканованих граней.", solveFailed:"Не вдалося знайти розв’язок. Перевір сканування й спробуй ще раз.", solveSolved:"Кубик уже зібраний.", solveDone:"Розв’язок знайдено: {n} ходів.", solutionTitle:"Розв’язок", solutionNotation:"R — права/червона грань, U — верхня/біла, F — передня/зелена. Апостроф означає оберт проти годинникової стрілки, 2 — пів оберту. Дивись прямо на грань, яку крутиш.", solutionCopied:"Розв’язок скопійовано.", solverLoading:"Готую солвер (перший запуск може тривати кілька секунд)…", solveAlreadySolvedHint:"Ходи не потрібні. Проскановані грані вже зібрані."
 }
 };
 function t(key) { return (I18N[lang] && I18N[lang][key]) || I18N.en[key] || key; }
@@ -483,7 +484,76 @@ function renderCounts() {
   const good = COLORS.every(c => counts[c.id] === 9);
   const s = $('#countStatus'); s.textContent = good ? t('countGood') : t('countBad'); s.className = 'status ' + (good ? 'good' : 'error');
 }
-const SOLVER_COLOR={white:'U',red:'R',green:'F',yellow:'D',orange:'L',blue:'B'}; let lastSolution=''; function cubeStateString(){return ['U','R','F','D','L','B'].map(f=>results[f].map(c=>SOLVER_COLOR[c]).join('')).join('')} function parity(a){let n=0;for(let i=0;i<a.length;i++)for(let j=i+1;j<a.length;j++)if(a[i]>a[j])n++;return n%2} function validCube(c,s){const ok=(a,n)=>a.length===n&&new Set(a).size===n&&a.every(x=>Number.isInteger(x)&&x>=0&&x<n);return ok(c.cp,8)&&ok(c.ep,12)&&c.co.reduce((a,b)=>a+b,0)%3===0&&c.eo.reduce((a,b)=>a+b,0)%2===0&&parity(c.cp)===parity(c.ep)&&c.asString()===s} $('#solveCube').addEventListener('click',()=>{const st=$('#solveStatus'),btn=$('#solveCube'),counts=Object.fromEntries(COLORS.map(c=>[c.id,0]));Object.values(results).forEach(f=>f.forEach(c=>counts[c]++));if(!COLORS.every(c=>counts[c.id]===9)){st.textContent='Each color must appear exactly nine times. Correct the stickers first.';st.className='status error';return}const s=cubeStateString();btn.disabled=true;st.textContent='Checking cube and calculating solution…';st.className='status';$('#solutionPanel').hidden=true;setTimeout(()=>{try{window.Cube.initSolver();const c=window.Cube.fromString(s);if(!validCube(c,s)){st.textContent='Invalid cube state. Check sticker colors and face orientation.';st.className='status error';return}const sol=c.solve();if(sol==null)throw Error('no solution');lastSolution=sol.trim();const moves=lastSolution?lastSolution.split(' '):[];$('#solutionSummary').textContent=moves.length?'Solution found: '+moves.length+' moves.':'The cube is already solved.';const host=$('#solutionMoves');host.replaceChildren();moves.forEach(m=>{const x=document.createElement('span');x.textContent=m;x.style.cssText='padding:8px 12px;border:1px solid var(--line-strong);border-radius:8px;background:var(--panel);font:700 16px var(--font-mono)';host.append(x)});$('#solutionNotation').textContent='R = clockwise, R\' = counterclockwise, R2 = half-turn, viewed directly at that face.';$('#solutionPanel').hidden=false;$('#copySolution').hidden=false;st.textContent='';$('#solutionPanel').scrollIntoView({behavior:'smooth',block:'nearest'})}catch(e){st.textContent='Solver error. Check the scan and try again.';st.className='status error'}finally{btn.disabled=false}},50)});$('#copySolution').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(lastSolution);$('#solveStatus').textContent='Solution copied.'}catch(e){$('#solveStatus').textContent=lastSolution}});
+const SOLVER_COLOR={white:'U',red:'R',green:'F',yellow:'D',orange:'L',blue:'B'}; let lastSolution=''; function cubeStateString(){return ['U','R','F','D','L','B'].map(f=>results[f].map(c=>SOLVER_COLOR[c]).join('')).join('')} function parity(a){let n=0;for(let i=0;i<a.length;i++)for(let j=i+1;j<a.length;j++)if(a[i]>a[j])n++;return n%2} function validCube(c,s){const ok=(a,n)=>a.length===n&&new Set(a).size===n&&a.every(x=>Number.isInteger(x)&&x>=0&&x<n);return ok(c.cp,8)&&ok(c.ep,12)&&c.co.reduce((a,b)=>a+b,0)%3===0&&c.eo.reduce((a,b)=>a+b,0)%2===0&&parity(c.cp)===parity(c.ep)&&c.asString()===s} $('#solveCube').addEventListener('click', () => {
+  const st = $('#solveStatus'), btn = $('#solveCube');
+  const counts = Object.fromEntries(COLORS.map(c => [c.id, 0]));
+  Object.values(results).forEach(face => face.forEach(color => counts[color]++));
+  if (!COLORS.every(c => counts[c.id] === 9)) {
+    st.textContent = t('solveBadCounts'); st.className = 'status error'; return;
+  }
+  $('#solutionPanel').hidden = true;
+  $('#copySolution').hidden = true;
+  lastSolution = '';
+  const host = $('#solutionMoves');
+  host.replaceChildren();
+  // Do not build solver tables for a solved cube: its six scanned faces are uniform.
+  const alreadySolved = FACES.every(face => results[face.id].every(color => color === face.color));
+  if (alreadySolved) {
+    $('#solutionHeading').textContent = t('solutionTitle');
+    $('#solutionSummary').textContent = t('solveSolved');
+    $('#solutionNotation').textContent = t('solveAlreadySolvedHint');
+    $('#solutionPanel').hidden = false;
+    st.textContent = t('solveSolved'); st.className = 'status good';
+    $('#solutionPanel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    return;
+  }
+  const s = cubeStateString();
+  if (s.length !== 54 || !/^[URFDLB]{54}$/.test(s)) {
+    st.textContent = t('solveInvalid'); st.className = 'status error'; return;
+  }
+  btn.disabled = true; st.textContent = t('solverLoading'); st.className = 'status';
+  setTimeout(() => {
+    try {
+      if (!window.Cube || typeof window.Cube.initSolver !== 'function') throw new Error('solver-missing');
+      window.Cube.initSolver();
+      const cube = window.Cube.fromString(s);
+      if (!validCube(cube, s)) {
+        st.textContent = t('solveInvalid'); st.className = 'status error'; return;
+      }
+      const solution = cube.solve();
+      if (solution == null) throw new Error('no-solution');
+      lastSolution = solution.trim();
+      const moves = lastSolution ? lastSolution.split(/\s+/) : [];
+      $('#solutionHeading').textContent = t('solutionTitle');
+      $('#solutionSummary').textContent = moves.length ? t('solveDone').replace('{n}', String(moves.length)) : t('solveSolved');
+      moves.forEach((move, index) => {
+        const chip = document.createElement('span');
+        chip.textContent = move;
+        chip.style.cssText = 'display:inline-grid;place-items:center;min-width:42px;height:38px;padding:0 9px;border:1px solid var(--line-strong);border-radius:9px;background:var(--panel);font:700 16px var(--font-mono)';
+        chip.title = 'Move ' + (index + 1);
+        host.append(chip);
+      });
+      $('#solutionNotation').textContent = t('solutionNotation');
+      $('#solutionPanel').hidden = false;
+      $('#copySolution').hidden = moves.length === 0;
+      st.textContent = ''; st.className = 'status good';
+      $('#solutionPanel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } catch (error) {
+      st.textContent = error && error.message === 'solver-missing' ? t('solveFailed') : t('solveInvalid');
+      st.className = 'status error';
+    } finally {
+      btn.disabled = false;
+    }
+  }, 50);
+});
+$('#copySolution').addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.writeText(lastSolution);
+    $('#solveStatus').textContent = t('solutionCopied'); $('#solveStatus').className = 'status good';
+  } catch (e) {
+    $('#solveStatus').textContent = lastSolution; $('#solveStatus').className = 'status';
+  }
+});$('#copySolution').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(lastSolution);$('#solveStatus').textContent='Solution copied.'}catch(e){$('#solveStatus').textContent=lastSolution}});
 $('#faceCards').addEventListener('click', ev => {
   const sticker = ev.target.closest('.sticker'); if (!sticker || sticker.disabled) return;
   const faceId = sticker.dataset.face, index = Number(sticker.dataset.index), colors = results[faceId];
