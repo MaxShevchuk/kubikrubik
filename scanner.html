@@ -113,7 +113,7 @@ p{margin:0}
       <div><div class="brand-eyebrow" data-i18n="brandEyebrow">3×3 SPEEDCUBE</div><div class="brand-title" data-i18n="brandTitle">Cube scanner</div></div>
     </div>
     <div class="top-actions">
-      <a class="btn" href="index.html">← <span data-i18n="back">Algorithms</span></a>
+      <a class="btn" href="index.html">← <span data-i18n="backNav">Algorithms</span></a>
       <select id="language" aria-label="Language"><option value="en">English</option><option value="uk">Українська</option></select>
     </div>
   </header>
@@ -203,7 +203,7 @@ const FACES = [
 ];
 const I18N = {
 en: {
-  pageTitle:"Cube scanner — My Algorithms", brandEyebrow:"3×3 SPEEDCUBE", brandTitle:"Cube scanner", back:"Algorithms",
+  pageTitle:"Cube scanner — My Algorithms", brandEyebrow:"3×3 SPEEDCUBE", brandTitle:"Cube scanner", backNav:"Back to algorithms",
   eyebrow:"CAMERA TOOL", title:"Scan your cube", intro:"Scan each face of a standard 3×3 cube. The camera samples the sticker colors and groups them using the six center stickers.",
   localTitle:"Processed on this device.", localText:"Camera frames are analyzed in your browser; photos are not uploaded to a server.",
   stageHint:"Fit all 9 stickers inside the square", startCamera:"Start camera", capture:"Capture face", retake:"Retake", confirmNext:"Confirm & next", finish:"Finish scan",
@@ -234,7 +234,7 @@ en: {
   startOver:"Start a new scan", orientationHelp:"Before following the solution: white center on top, green center facing you, red center on your right. Keep the cube in this orientation while doing the moves.", solveCube:"Solve cube", solving:"Checking cube and calculating solution…", solveBadCounts:"Each color must appear exactly nine times. Correct the stickers first.", solveInvalid:"This is not a valid 3×3 cube state. Check sticker colors and the orientation of the scanned faces.", solveFailed:"Could not find a solution. Check the scan and try again.", solveSolved:"The cube is already solved.", solveDone:"Solution found: {n} moves.", solutionTitle:"Solution", solutionNotation:"R = right/red face, U = top/white face, F = front/green face. An apostrophe means counterclockwise; 2 means a half-turn. Look directly at the face being turned.", solutionCopied:"Solution copied.", solverLoading:"Preparing the solver (first run may take a few seconds)…", solveAlreadySolvedHint:"No moves are needed. The scanned faces are already solved.", solveNoOrientation:"No valid interpretation of these face images was found. Check each sticker and confirm the center layout: white top, green front, red right.", solveAmbiguous:"Several face orientations fit a legal cube. Rescan the six faces carefully, following the guide for which edge should be nearest to you.", phaseCross:"1. Cross", phaseCrossHint:"Solve the four white edge pieces and match their side colors to the centers.", phaseF2L:"2. F2L pair", phaseF2LHint:"Insert one corner-edge pair while preserving solved pairs.", phaseOLL:"3. OLL", phaseOLLHint:"Orient the last-layer stickers so yellow faces up.", phasePLL:"4. PLL", phasePLLHint:"Permute the last-layer pieces to finish the cube.", cfopOrientation:"Keep white on top, green in front, and red on the right while following these moves."
 },
 uk: {
-  pageTitle:"Сканер кубика — Мої алгоритми", brandEyebrow:"СПІДКУБІНГ 3×3", brandTitle:"Сканер кубика", back:"Алгоритми",
+  pageTitle:"Сканер кубика — Мої алгоритми", brandEyebrow:"СПІДКУБІНГ 3×3", brandTitle:"Сканер кубика", backNav:"Назад до алгоритмів",
   eyebrow:"КАМЕРА", title:"Проскануй кубик", intro:"Проскануй кожну грань стандартного кубика 3×3. Камера зчитує кольори наліпок і зіставляє їх за шістьма центральними наліпками.",
   localTitle:"Уся обробка на цьому пристрої.", localText:"Кадри аналізуються у браузері; фото не надсилаються на сервер.",
   stageHint:"Сумісти кути грані з кутами рамки", startCamera:"Увімкнути камеру", capture:"Зняти грань", retake:"Пересканувати", confirmNext:"Підтвердити й далі", finish:"Завершити сканування",
