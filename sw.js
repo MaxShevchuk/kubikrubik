@@ -1,6 +1,6 @@
 /* Offline support. The page itself is fetched from the network first (so updates show up at once)
    and falls back to the saved copy when there is no connection. */
-const CACHE = 'rubik-algorithms-v13';
+const CACHE = 'rubik-algorithms-v14';
 const SHELL = ['./', 'index.html', 'scanner.html', 'vendor/cubejs-cube.js', 'vendor/cubejs-solve.js', 'manifest.webmanifest?v=6', 'icons/icon.svg?v=6', 'icons/icon-192.png?v=6', 'icons/icon-512.png?v=6', 'icons/maskable-512.png?v=6', 'icons/apple-touch-icon.png?v=6'];
 const FONT_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com'];
 
