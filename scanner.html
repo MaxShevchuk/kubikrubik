@@ -167,13 +167,17 @@ p{margin:0}
     <div class="face-cards" id="faceCards"></div>
     <p class="result-foot" data-i18n="limitsText">This checks sticker colors and counts only. It does not verify every corner/edge permutation or generate a solution.</p>
     <div class="result-actions">
-      <button class="btn primary" id="copyScan" type="button" data-i18n="copyScan">Copy face colors</button>
+      <button class="btn primary" id="solveCube" type="button">Solve cube</button>
+      <button class="btn" id="copySolution" type="button" hidden>Copy solution</button>
+      <button class="btn" id="copyScan" type="button" data-i18n="copyScan">Copy face colors</button>
       <button class="btn" id="scanAgain" type="button" data-i18n="scanAgain">Scan again</button>
     </div>
-    <p class="status" id="copyStatus" role="status" aria-live="polite"></p>
+    <p class="status" id="solveStatus" role="status" aria-live="polite"></p><section id="solutionPanel" hidden style="margin-top:16px;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--bg)"><h3 id="solutionHeading">Solution</h3><p id="solutionSummary" class="results-sub"></p><div id="solutionMoves" style="display:flex;flex-wrap:wrap;gap:7px;margin-top:12px"></div><p id="solutionNotation" class="result-foot"></p></section><p class="status" id="copyStatus" role="status" aria-live="polite"></p>
   </section>
 </div>
 
+<script src="vendor/cubejs-cube.js"></script>
+<script src="vendor/cubejs-solve.js"></script>
 <script>
 (function () {
 'use strict';
@@ -479,6 +483,7 @@ function renderCounts() {
   const good = COLORS.every(c => counts[c.id] === 9);
   const s = $('#countStatus'); s.textContent = good ? t('countGood') : t('countBad'); s.className = 'status ' + (good ? 'good' : 'error');
 }
+const SOLVER_COLOR={white:'U',red:'R',green:'F',yellow:'D',orange:'L',blue:'B'}; let lastSolution=''; function cubeStateString(){return ['U','R','F','D','L','B'].map(f=>results[f].map(c=>SOLVER_COLOR[c]).join('')).join('')} function parity(a){let n=0;for(let i=0;i<a.length;i++)for(let j=i+1;j<a.length;j++)if(a[i]>a[j])n++;return n%2} function validCube(c,s){const ok=(a,n)=>a.length===n&&new Set(a).size===n&&a.every(x=>Number.isInteger(x)&&x>=0&&x<n);return ok(c.cp,8)&&ok(c.ep,12)&&c.co.reduce((a,b)=>a+b,0)%3===0&&c.eo.reduce((a,b)=>a+b,0)%2===0&&parity(c.cp)===parity(c.ep)&&c.asString()===s} $('#solveCube').addEventListener('click',()=>{const st=$('#solveStatus'),btn=$('#solveCube'),counts=Object.fromEntries(COLORS.map(c=>[c.id,0]));Object.values(results).forEach(f=>f.forEach(c=>counts[c]++));if(!COLORS.every(c=>counts[c.id]===9)){st.textContent='Each color must appear exactly nine times. Correct the stickers first.';st.className='status error';return}const s=cubeStateString();btn.disabled=true;st.textContent='Checking cube and calculating solution…';st.className='status';$('#solutionPanel').hidden=true;setTimeout(()=>{try{window.Cube.initSolver();const c=window.Cube.fromString(s);if(!validCube(c,s)){st.textContent='Invalid cube state. Check sticker colors and face orientation.';st.className='status error';return}const sol=c.solve();if(sol==null)throw Error('no solution');lastSolution=sol.trim();const moves=lastSolution?lastSolution.split(/\\s+/):[];$('#solutionSummary').textContent=moves.length?'Solution found: '+moves.length+' moves.':'The cube is already solved.';const host=$('#solutionMoves');host.replaceChildren();moves.forEach(m=>{const x=document.createElement('span');x.textContent=m;x.style.cssText='padding:8px 12px;border:1px solid var(--line-strong);border-radius:8px;background:var(--panel);font:700 16px var(--font-mono)';host.append(x)});$('#solutionNotation').textContent='R = clockwise, R\' = counterclockwise, R2 = half-turn, viewed directly at that face.';$('#solutionPanel').hidden=false;$('#copySolution').hidden=false;st.textContent='';$('#solutionPanel').scrollIntoView({behavior:'smooth',block:'nearest'})}catch(e){st.textContent='Solver error. Check the scan and try again.';st.className='status error'}finally{btn.disabled=false}},50)});$('#copySolution').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(lastSolution);$('#solveStatus').textContent='Solution copied.'}catch(e){$('#solveStatus').textContent=lastSolution}});
 $('#faceCards').addEventListener('click', ev => {
   const sticker = ev.target.closest('.sticker'); if (!sticker || sticker.disabled) return;
   const faceId = sticker.dataset.face, index = Number(sticker.dataset.index), colors = results[faceId];
