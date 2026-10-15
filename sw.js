@@ -1,7 +1,7 @@
 /* Offline support. The page itself is fetched from the network first (so updates show up at once)
    and falls back to the saved copy when there is no connection. */
-const CACHE = 'rubik-algorithms-v11';
-const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icons/icon.svg?v=5', 'icons/icon-192.png?v=4', 'icons/icon-512.png?v=4', 'icons/maskable-512.png?v=4', 'icons/apple-touch-icon.png?v=4'];
+const CACHE = 'rubik-algorithms-v12';
+const SHELL = ['./', 'index.html', 'manifest.webmanifest?v=6', 'icons/icon.svg?v=6', 'icons/icon-192.png?v=6', 'icons/icon-512.png?v=6', 'icons/maskable-512.png?v=6', 'icons/apple-touch-icon.png?v=6'];
 const FONT_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com'];
 
 self.addEventListener('install', e => {
