@@ -1,0 +1,514 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f2f3f6">
+<meta name="description" content="Scan a standard 3×3 Rubik's Cube with your camera. Sticker colors are recognized locally in your browser.">
+<title>Cube scanner — My Algorithms</title>
+<link rel="icon" href="icons/icon.svg?v=6" type="image/svg+xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Figtree:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap">
+<style>
+:root {
+  color-scheme: light;
+  --bg:#f2f3f6; --panel:#fff; --panel-2:#eceef3; --stage:#151821;
+  --line:#dcdfe7; --line-strong:#c2c7d3; --ink:#14171f; --muted:#566072; --faint:#687182;
+  --accent:#2457d6; --accent-ink:#fff; --accent-soft:#e3ebfd; --ok:#17803d; --ok-soft:#e1f4e8;
+  --warn:#9a5a00; --warn-soft:#fbefd9; --bad:#c42b3a; --bad-soft:#fbe4e6;
+  --font-display:"Bricolage Grotesque","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --font-body:"Figtree","Segoe UI",system-ui,-apple-system,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+:root[data-theme="dark"] {
+  color-scheme:dark; --bg:#0e1015; --panel:#151821; --panel-2:#1b1f2a; --stage:#080a0f;
+  --line:#272c38; --line-strong:#3b4251; --ink:#eef0f5; --muted:#9ba4b6; --faint:#8089a0;
+  --accent:#84aaff; --accent-ink:#0a1226; --accent-soft:#1d2a4a; --ok:#52c783; --ok-soft:#15301f;
+  --warn:#f0b34a; --warn-soft:#382a10; --bad:#ff7f8b; --bad-soft:#3a171c;
+}
+@media(prefers-color-scheme:dark) {
+  :root:not([data-theme="light"]) { color-scheme:dark; --bg:#0e1015; --panel:#151821; --panel-2:#1b1f2a; --stage:#080a0f; --line:#272c38; --line-strong:#3b4251; --ink:#eef0f5; --muted:#9ba4b6; --faint:#8089a0; --accent:#84aaff; --accent-ink:#0a1226; --accent-soft:#1d2a4a; --ok:#52c783; --ok-soft:#15301f; --warn:#f0b34a; --warn-soft:#382a10; --bad:#ff7f8b; --bad-soft:#3a171c; }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.5 var(--font-body);-webkit-text-size-adjust:100%}
+button,input,select{font:inherit;color:inherit}
+button,a,select{-webkit-tap-highlight-color:transparent}
+button{cursor:pointer}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:8px}
+.app{width:min(1160px,100%);margin:0 auto;padding:22px clamp(14px,3vw,34px) 48px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:22px}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.brand-mark{display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:var(--ink);color:var(--bg);font:700 20px var(--font-mono)}
+.brand-eyebrow{font:700 10px/1 var(--font-body);letter-spacing:.15em;text-transform:uppercase;color:var(--faint)}
+.brand-title{margin-top:5px;font:700 21px/1 var(--font-display);letter-spacing:-.03em}
+.top-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:0 13px;border:1px solid var(--line-strong);border-radius:10px;background:var(--panel);font-weight:650;font-size:14px;line-height:1;text-decoration:none;white-space:nowrap}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn:disabled{opacity:.38;cursor:not-allowed}
+select{min-height:38px;padding:0 10px;border:1px solid var(--line-strong);border-radius:9px;background:var(--panel)}
+h1{font:700 clamp(28px,4vw,42px)/1.05 var(--font-display);letter-spacing:-.04em;margin:4px 0 10px}
+h2{font:700 21px/1.2 var(--font-display);letter-spacing:-.025em;margin:0}
+h3{font:700 16px/1.2 var(--font-display);margin:0}
+p{margin:0}
+.intro{max-width:72ch;color:var(--muted);font-size:16px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:clamp(14px,2.5vw,24px);box-shadow:0 1px 0 rgb(0 0 0 / .02)}
+.intro-panel{margin-bottom:14px}
+.eyebrow{font:700 11px/1 var(--font-body);letter-spacing:.15em;text-transform:uppercase;color:var(--faint);margin-bottom:9px}
+.privacy{display:flex;align-items:flex-start;gap:10px;padding:11px 13px;margin-top:16px;border:1px solid var(--line);border-radius:11px;background:var(--panel-2);color:var(--muted);font-size:13px}
+.privacy strong{color:var(--ink)}
+.privacy-icon{font-size:17px;line-height:1}
+.layout{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(240px,.75fr);gap:14px;align-items:start}
+.step-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:7px}
+.step-badge{font:700 12px var(--font-mono);color:var(--accent);background:var(--accent-soft);padding:5px 9px;border-radius:99px;white-space:nowrap}
+.step-instruction{color:var(--muted);min-height:45px;margin-bottom:13px}
+.stage{position:relative;overflow:hidden;width:100%;aspect-ratio:4/3;background:#090b10;border-radius:13px;border:1px solid var(--line-strong)}
+.stage video{display:block;width:100%;height:100%;object-fit:cover}
+.scan-grid{position:absolute;left:12.5%;top:0;width:75%;height:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));border:2px solid #fff;pointer-events:none;box-shadow:0 0 0 999px rgb(0 0 0 / .22)}
+.scan-cell{min-width:0;min-height:0;border:1px solid rgb(255 255 255 / .92);background:rgb(255 255 255 / .10);box-shadow:inset 0 0 0 1px rgb(0 0 0 / .15)}
+.scan-cell:nth-child(5){outline:2px solid #fff;outline-offset:-5px}
+.stage-hint{position:absolute;left:10px;right:10px;bottom:10px;text-align:center;color:white;background:rgb(0 0 0 / .62);padding:5px 8px;border-radius:7px;font-size:11px;pointer-events:none}
+.controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px}
+.status{margin-top:10px;min-height:24px;color:var(--muted);font-size:13px}
+.status.error{color:var(--bad)}
+.status.good{color:var(--ok)}
+.side-panel h2{margin-bottom:12px}
+.face-step-list{display:grid;gap:9px;padding:0;margin:0;list-style:none}
+.face-step-list li{display:grid;grid-template-columns:32px minmax(0,1fr);gap:10px;align-items:center;color:var(--muted);font-size:13px}
+.step-number{width:30px;height:30px;display:grid;place-items:center;border:1px solid var(--line-strong);border-radius:9px;font:700 12px var(--font-mono);color:var(--ink);background:var(--panel-2)}
+.step-number .dot{width:12px;height:12px;border-radius:3px;background:var(--dot,#ddd);border:1px solid rgb(0 0 0 / .2)}
+.side-note{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
+.side-note strong{color:var(--ink)}
+.results{margin-top:14px}
+.results-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+.results-sub{color:var(--muted);font-size:13px;margin-top:5px;max-width:75ch}
+.counts{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0 16px}
+.count-chip{display:inline-flex;align-items:center;gap:7px;padding:5px 9px;border:1px solid var(--line);background:var(--panel-2);border-radius:99px;font:600 12px var(--font-mono)}
+.count-dot{width:12px;height:12px;border-radius:3px;border:1px solid rgb(0 0 0 / .25);background:var(--dot)}
+.count-chip.bad-count{border-color:var(--bad);color:var(--bad);background:var(--bad-soft)}
+.face-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.face-card{border:1px solid var(--line);border-radius:12px;padding:12px;min-width:0;background:var(--bg)}
+.face-card-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.face-symbol{width:28px;height:28px;display:grid;place-items:center;border-radius:8px;background:var(--panel-2);border:1px solid var(--line-strong);font:700 12px var(--font-mono)}
+.face-meta{min-width:0;flex:1}
+.face-title{font:700 14px var(--font-display)}
+.face-center{font-size:11px;color:var(--muted)}
+.face-grid{width:min(100%,185px);aspect-ratio:1;margin:0 auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px;background:#111;padding:4px;border-radius:8px}
+.sticker{padding:0;min-width:0;min-height:0;aspect-ratio:1;border:1px solid rgb(0 0 0 / .45);border-radius:3px;background:var(--sticker);position:relative}
+.sticker:hover:not(:disabled){filter:brightness(.92);outline:2px solid var(--accent);outline-offset:0}
+.sticker:disabled{cursor:default}
+.sticker.center:after{content:"";position:absolute;inset:5px;border:2px solid rgb(255 255 255 / .88);border-radius:2px;mix-blend-mode:difference;pointer-events:none}
+.result-foot{margin-top:14px;color:var(--muted);font-size:12px;max-width:90ch}
+.result-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+[hidden]{display:none!important}
+@media(max-width:800px){.layout{grid-template-columns:1fr}.side-panel{order:2}.face-cards{grid-template-columns:repeat(2,minmax(0,1fr))}.side-panel .face-step-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:480px){.app{padding-top:13px}.brand-title{font-size:18px}.topbar{align-items:flex-start}.face-cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.face-card{padding:8px}.face-grid{gap:2px;padding:3px}.face-title{font-size:13px}.step-row{align-items:flex-start;flex-direction:column}.controls .btn{flex:1 1 auto}.result-actions .btn{flex:1 1 auto}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">3×3</div>
+      <div><div class="brand-eyebrow" data-i18n="brandEyebrow">3×3 SPEEDCUBE</div><div class="brand-title" data-i18n="brandTitle">Cube scanner</div></div>
+    </div>
+    <div class="top-actions">
+      <a class="btn" href="index.html">← <span data-i18n="back">Algorithms</span></a>
+      <select id="language" aria-label="Language"><option value="en">English</option><option value="uk">Українська</option></select>
+    </div>
+  </header>
+
+  <section class="panel intro-panel">
+    <div class="eyebrow" data-i18n="eyebrow">CAMERA TOOL</div>
+    <h1 data-i18n="title">Scan your cube</h1>
+    <p class="intro" data-i18n="intro">Scan each face of a standard 3×3 cube. The camera samples the sticker colors and groups them using the six center stickers.</p>
+    <div class="privacy"><span class="privacy-icon" aria-hidden="true">⌁</span><p><strong data-i18n="localTitle">Processed on this device.</strong> <span data-i18n="localText">Camera frames are analyzed in your browser; photos are not uploaded to a server.</span></p></div>
+  </section>
+
+  <div class="layout" id="scannerLayout">
+    <section class="panel" id="scannerPanel">
+      <div class="step-row"><h2 id="stepHeading">Face 1 of 6 · Front · green center</h2><span class="step-badge" id="stepBadge">1 / 6</span></div>
+      <p class="step-instruction" id="stepInstruction">Face the green center toward the camera. Keep the white center on top.</p>
+      <div class="stage" id="stage">
+        <video id="video" autoplay muted playsinline aria-label="Live camera preview"></video>
+        <div class="scan-grid" id="scanGrid" aria-hidden="true"></div>
+        <div class="stage-hint" data-i18n="stageHint">Fit all 9 stickers inside the square</div>
+      </div>
+      <canvas id="canvas" hidden></canvas>
+      <div class="controls">
+        <button class="btn primary" id="startCamera" type="button" data-i18n="startCamera">Start camera</button>
+        <button class="btn primary" id="captureFace" type="button" disabled data-i18n="capture">Capture face</button>
+        <button class="btn" id="retakeFace" type="button" hidden data-i18n="retake">Retake</button>
+        <button class="btn" id="confirmFace" type="button" hidden data-i18n="confirmNext">Confirm & next</button>
+      </div>
+      <p class="status" id="cameraStatus" role="status" aria-live="polite"></p>
+    </section>
+
+    <aside class="panel side-panel">
+      <h2 data-i18n="stepsTitle">Scan order</h2>
+      <ol class="face-step-list" id="faceStepList">
+        <li><span class="step-number"><span class="dot" style="--dot:#2fa95c"></span></span><span><strong>F · Front</strong><br>Green center</span></li>
+        <li><span class="step-number"><span class="dot" style="--dot:#d83a3d"></span></span><span><strong>R · Right</strong><br>Red center</span></li>
+        <li><span class="step-number"><span class="dot" style="--dot:#2f6fd8"></span></span><span><strong>B · Back</strong><br>Blue center</span></li>
+        <li><span class="step-number"><span class="dot" style="--dot:#f0892a"></span></span><span><strong>L · Left</strong><br>Orange center</span></li>
+        <li><span class="step-number"><span class="dot" style="--dot:#f4f6f8"></span></span><span><strong>U · Top</strong><br>White center</span></li>
+        <li><span class="step-number"><span class="dot" style="--dot:#f6cf2f"></span></span><span><strong>D · Bottom</strong><br>Yellow center</span></li>
+      </ol>
+      <p class="side-note"><strong data-i18n="lightTitle">Lighting matters.</strong> <span data-i18n="lightText">Use bright, even light. Avoid glare and shadows, keep the face straight to the camera, and check the result before continuing.</span></p>
+    </aside>
+  </div>
+
+  <section class="panel results" id="results" hidden>
+    <div class="results-head">
+      <div><h2 data-i18n="resultsTitle">Recognized stickers</h2><p class="results-sub" data-i18n="resultsSub">Tap any non-center sticker to cycle through colors and correct a misread. Every color should appear exactly nine times.</p></div>
+    </div>
+    <div class="counts" id="colorCounts"></div>
+    <div id="countStatus" class="status" role="status" aria-live="polite"></div>
+    <div class="face-cards" id="faceCards"></div>
+    <p class="result-foot" data-i18n="limitsText">This checks sticker colors and counts only. It does not verify every corner/edge permutation or generate a solution.</p>
+    <div class="result-actions">
+      <button class="btn primary" id="copyScan" type="button" data-i18n="copyScan">Copy face colors</button>
+      <button class="btn" id="scanAgain" type="button" data-i18n="scanAgain">Scan again</button>
+    </div>
+    <p class="status" id="copyStatus" role="status" aria-live="polite"></p>
+  </section>
+</div>
+
+<script>
+(function () {
+'use strict';
+const $ = (s, root) => (root || document).querySelector(s);
+const $$ = (s, root) => Array.from((root || document).querySelectorAll(s));
+const COLORS = [
+  { id:'white', hex:'#f4f6f8' },
+  { id:'yellow', hex:'#f6cf2f' },
+  { id:'red', hex:'#d83a3d' },
+  { id:'orange', hex:'#f0892a' },
+  { id:'green', hex:'#2fa95c' },
+  { id:'blue', hex:'#2f6fd8' }
+];
+const FACES = [
+  { id:'F', nameKey:'front', color:'green', guideKey:'guideF' },
+  { id:'R', nameKey:'right', color:'red', guideKey:'guideR' },
+  { id:'B', nameKey:'back', color:'blue', guideKey:'guideB' },
+  { id:'L', nameKey:'left', color:'orange', guideKey:'guideL' },
+  { id:'U', nameKey:'top', color:'white', guideKey:'guideU' },
+  { id:'D', nameKey:'bottom', color:'yellow', guideKey:'guideD' }
+];
+const I18N = {
+en: {
+  pageTitle:"Cube scanner — My Algorithms", brandEyebrow:"3×3 SPEEDCUBE", brandTitle:"Cube scanner", back:"Algorithms",
+  eyebrow:"CAMERA TOOL", title:"Scan your cube", intro:"Scan each face of a standard 3×3 cube. The camera samples the sticker colors and groups them using the six center stickers.",
+  localTitle:"Processed on this device.", localText:"Camera frames are analyzed in your browser; photos are not uploaded to a server.",
+  stageHint:"Fit all 9 stickers inside the square", startCamera:"Start camera", capture:"Capture face", retake:"Retake", confirmNext:"Confirm & next", finish:"Finish scan",
+  stepsTitle:"Scan order", lightTitle:"Lighting matters.", lightText:"Use bright, even light. Avoid glare and shadows, keep the face straight to the camera, and check the result before continuing.",
+  resultsTitle:"Recognized stickers", resultsSub:"Tap any non-center sticker to cycle through colors and correct a misread. Every color should appear exactly nine times.",
+  limitsText:"This checks sticker colors and counts only. It does not verify every corner/edge permutation or generate a solution.",
+  copyScan:"Copy face colors", scanAgain:"Scan again", faceCounter:"Face {n} of 6", centerIs:"{color} center",
+  front:"Front", right:"Right", back:"Back", left:"Left", top:"Top", bottom:"Bottom",
+  white:"white", yellow:"yellow", red:"red", orange:"orange", green:"green", blue:"blue",
+  guideF:"Point the green center at the camera. Keep the white center on top.",
+  guideR:"Turn the whole cube one quarter-turn to bring the red center forward. Keep white on top.",
+  guideB:"Turn the whole cube again until the blue center faces the camera. Keep white on top.",
+  guideL:"Turn the whole cube again until the orange center faces the camera. Keep white on top.",
+  guideU:"Return green to the front, then tilt the cube so the white top face points toward the camera. Keep the green/front edge closest to you.",
+  guideD:"With green at the front, tilt the cube so the yellow bottom face points toward the camera. Keep the green/front edge closest to you.",
+  cameraReady:"Camera ready. Align the face inside the guide.", cameraStarting:"Requesting camera access…", cameraError:"Could not open the camera. Check browser permission and use the site over HTTPS.",
+  noCamera:"This browser does not support camera access. Try a recent version of Chrome, Edge, Safari, or Firefox over HTTPS.",
+  captureError:"Could not read the frame. Make sure the camera preview is visible, then try again.",
+  captured:"Face captured. Check the sampled colors; retake it if the stickers look wrong.",
+  stepReady:"Show the {color} center to scan the {face} face.",
+  centerLabel:"center", nextReady:"Ready for the next face.", allCaptured:"All six faces scanned. Grouping colors…",
+  countGood:"Each color appears nine times. Sticker counts look consistent, but this is not a full cube-validity check.",
+  countBad:"The color counts do not match nine each. Tap a misread sticker to correct it, or rescan a face.",
+  countLabel:"{color}: {n}/9", fixedCenter:"Center sticker (fixed)", stickerLabel:"{face} face, row {row}, column {col}: {color}. Tap to change.",
+  copied:"Face colors copied as JSON.", copyError:"Clipboard access was blocked. Select and copy from your browser manually.",
+  copiedUnsupported:"Clipboard unavailable. Try again on HTTPS.", cameraStopped:"Camera stopped.",
+  retakeHint:"Capture the same face again, then confirm it.", resultIntro:"Check the recognized colors and fix any mistakes before copying.",
+  startOver:"Start a new scan"
+},
+uk: {
+  pageTitle:"Сканер кубика — Мої алгоритми", brandEyebrow:"СПІДКУБІНГ 3×3", brandTitle:"Сканер кубика", back:"Алгоритми",
+  eyebrow:"КАМЕРА", title:"Проскануй кубик", intro:"Проскануй кожну грань стандартного кубика 3×3. Камера зчитує кольори наліпок і зіставляє їх за шістьма центральними наліпками.",
+  localTitle:"Уся обробка на цьому пристрої.", localText:"Кадри аналізуються у браузері; фото не надсилаються на сервер.",
+  stageHint:"Умісти всі 9 наліпок у квадрат", startCamera:"Увімкнути камеру", capture:"Зняти грань", retake:"Пересканувати", confirmNext:"Підтвердити й далі", finish:"Завершити сканування",
+  stepsTitle:"Порядок сканування", lightTitle:"Важливе освітлення.", lightText:"Використовуй яскраве рівномірне світло. Уникай відблисків і тіней, тримай грань прямо до камери та перевіряй результат перед продовженням.",
+  resultsTitle:"Розпізнані наліпки", resultsSub:"Натисни будь-яку наліпку, крім центральної, щоб перемикати кольори й виправити помилку. Кожен колір має траплятися рівно дев’ять разів.",
+  limitsText:"Перевіряються лише кольори й їхня кількість. Перестановки кутів і ребер не перевіряються, розв’язок не обчислюється.",
+  copyScan:"Копіювати кольори граней", scanAgain:"Сканувати знову", faceCounter:"Грань {n} з 6", centerIs:"центр: {color}",
+  front:"Передня", right:"Права", back:"Задня", left:"Ліва", top:"Верхня", bottom:"Нижня",
+  white:"білий", yellow:"жовтий", red:"червоний", orange:"помаранчевий", green:"зелений", blue:"синій",
+  guideF:"Поверни зелений центр до камери. Білий центр тримай зверху.",
+  guideR:"Поверни весь кубик на чверть оберту, щоб червоний центр дивився на камеру. Білий тримай зверху.",
+  guideB:"Поверни кубик ще раз, доки синій центр не дивитиметься на камеру. Білий тримай зверху.",
+  guideL:"Поверни кубик ще раз, доки помаранчевий центр не дивитиметься на камеру. Білий тримай зверху.",
+  guideU:"Поверни зелений центр уперед і нахили кубик так, щоб біла верхня грань дивилася на камеру. Зелений/передній край тримай ближче до себе.",
+  guideD:"Коли зелена грань спереду, нахили кубик так, щоб жовта нижня грань дивилася на камеру. Зелений/передній край тримай ближче до себе.",
+  cameraReady:"Камеру ввімкнено. Вирівняй грань усередині рамки.", cameraStarting:"Запит доступу до камери…", cameraError:"Не вдалося відкрити камеру. Перевір дозвіл браузера й відкрий сайт через HTTPS.",
+  noCamera:"Цей браузер не підтримує доступ до камери. Спробуй оновлений Chrome, Edge, Safari або Firefox через HTTPS.",
+  captureError:"Не вдалося прочитати кадр. Переконайся, що зображення з камери видно, і повтори спробу.",
+  captured:"Грань знято. Перевір кольори; якщо вони визначені неправильно, перескануй її.",
+  stepReady:"Покажи {color} центр, щоб сканувати грань: {face}.",
+  centerLabel:"центр", nextReady:"Можна сканувати наступну грань.", allCaptured:"Усі шість граней проскановано. Визначаю кольори…",
+  countGood:"Кожен колір трапляється дев’ять разів. Кількість наліпок збігається, але це не повна перевірка стану кубика.",
+  countBad:"Кількість кольорів не дорівнює дев’яти для кожного. Натисни помилкову наліпку або перескануй грань.",
+  countLabel:"{color}: {n}/9", fixedCenter:"Центральна наліпка (фіксована)", stickerLabel:"Грань {face}, рядок {row}, стовпчик {col}: {color}. Натисни, щоб змінити.",
+  copied:"Кольори граней скопійовано як JSON.", copyError:"Браузер заблокував буфер обміну. Скопіюй вручну.",
+  copiedUnsupported:"Буфер обміну недоступний. Спробуй через HTTPS.", cameraStopped:"Камеру вимкнено.",
+  retakeHint:"Зніми цю саму грань ще раз і підтвердь.", resultIntro:"Перевір розпізнані кольори й виправ помилки перед копіюванням.",
+  startOver:"Почати нове сканування"
+}
+};
+function t(key) { return (I18N[lang] && I18N[lang][key]) || I18N.en[key] || key; }
+let lang = 'en';
+try {
+  const saved = JSON.parse(localStorage.getItem('rubik-algorithms-v4') || 'null');
+  if (saved && saved.settings && (saved.settings.lang === 'uk' || saved.settings.lang === 'en')) lang = saved.settings.lang;
+} catch (e) {}
+try {
+  const theme = localStorage.getItem('rubik-algorithm-theme-v1');
+  if (theme === 'dark' || theme === 'light') document.documentElement.dataset.theme = theme;
+} catch (e) {}
+const language = $('#language');
+language.value = lang;
+language.addEventListener('change', () => { lang = language.value; renderStatic(); renderStep(); if (faceScans.length === 6) renderResults(); });
+function renderStatic() {
+  document.documentElement.lang = lang;
+  document.title = t('pageTitle');
+  $$('[data-i18n]').forEach(el => { const key = el.dataset.i18n; el.textContent = t(key); });
+  $('#stage').setAttribute('aria-label', lang === 'uk' ? 'Попередній перегляд камери з сіткою 3 на 3' : 'Camera preview with 3 by 3 guide');
+  $('#startCamera').setAttribute('aria-label', t('startCamera'));
+  renderGuideList();
+}
+function renderGuideList() {
+  const list = $('#faceStepList');
+  list.replaceChildren();
+  FACES.forEach((face, index) => {
+    const li = document.createElement('li');
+    const num = document.createElement('span'); num.className = 'step-number';
+    const dot = document.createElement('span'); dot.className = 'dot'; dot.style.setProperty('--dot', colorHex(face.color)); num.append(dot);
+    const text = document.createElement('span');
+    const strong = document.createElement('strong'); strong.textContent = face.id + ' · ' + t(face.nameKey);
+    const sub = document.createElement('div'); sub.textContent = t(face.color) + ' ' + t('centerLabel');
+    text.append(strong, document.createElement('br'), sub); li.append(num, text); list.append(li);
+  });
+}
+function colorHex(id) { return (COLORS.find(c => c.id === id) || COLORS[0]).hex; }
+const video = $('#video'), canvas = $('#canvas'), ctx = canvas.getContext('2d', { willReadFrequently:true });
+const grid = $('#scanGrid');
+grid.innerHTML = Array.from({length:9}, () => '<div class="scan-cell"></div>').join('');
+const gridCells = $$('.scan-cell', grid);
+const startBtn = $('#startCamera'), captureBtn = $('#captureFace'), retakeBtn = $('#retakeFace'), confirmBtn = $('#confirmFace');
+const statusEl = $('#cameraStatus');
+let stream = null, faceIndex = 0, faceScans = [], detected = null, results = null;
+
+function setStatus(message, kind) {
+  statusEl.textContent = message || '';
+  statusEl.className = 'status' + (kind ? ' ' + kind : '');
+}
+function currentFace() { return FACES[faceIndex]; }
+function renderStep() {
+  const face = currentFace();
+  $('#stepHeading').textContent = t('faceCounter').replace('{n}', String(faceIndex + 1)) + ' · ' + t(face.nameKey) + ' · ' + t('centerIs').replace('{color}', t(face.color));
+  $('#stepBadge').textContent = (faceIndex + 1) + ' / 6';
+  $('#stepInstruction').textContent = t(face.guideKey);
+  const item = faceScans.find(f => f.id === face.id);
+  const hasCapture = !!item;
+  captureBtn.hidden = !stream || hasCapture;
+  captureBtn.disabled = !stream || video.readyState < 2 || hasCapture;
+  retakeBtn.hidden = !hasCapture;
+  confirmBtn.hidden = !hasCapture;
+  confirmBtn.textContent = faceIndex === FACES.length - 1 ? t('finish') : t('confirmNext');
+  gridCells.forEach((cell, i) => { cell.style.background = hasCapture ? rgbCss(item.samples[i]) : 'rgb(255 255 255 / .10)'; });
+}
+function rgbCss(c) { return 'rgb(' + Math.round(c.r) + ' ' + Math.round(c.g) + ' ' + Math.round(c.b) + ')'; }
+function stopCamera() {
+  if (stream) stream.getTracks().forEach(track => track.stop());
+  stream = null; video.srcObject = null;
+  captureBtn.disabled = true; captureBtn.hidden = true; startBtn.hidden = false;
+}
+async function startCamera() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { setStatus(t('noCamera'), 'error'); return; }
+  startBtn.disabled = true; setStatus(t('cameraStarting'));
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ audio:false, video:{ facingMode:{ideal:'environment'}, width:{ideal:1280}, height:{ideal:720} } });
+    video.srcObject = stream;
+    await video.play();
+    startBtn.hidden = true; startBtn.disabled = false;
+    captureBtn.hidden = false; captureBtn.disabled = true;
+    setStatus(t('cameraReady'));
+    renderStep();
+  } catch (e) {
+    stopCamera(); startBtn.disabled = false; setStatus(t('cameraError'), 'error');
+  }
+}
+function samplePatch(sourceX, sourceY, radius) {
+  const x = Math.max(0, Math.min(canvas.width - 1, Math.round(sourceX)));
+  const y = Math.max(0, Math.min(canvas.height - 1, Math.round(sourceY)));
+  const r = Math.max(2, Math.min(radius, Math.floor((Math.min(canvas.width, canvas.height) - 1) / 2)));
+  const left = Math.max(0, x - r), top = Math.max(0, y - r);
+  const right = Math.min(canvas.width, x + r + 1), bottom = Math.min(canvas.height, y + r + 1);
+  const data = ctx.getImageData(left, top, right - left, bottom - top).data;
+  let rs = 0, gs = 0, bs = 0, n = 0;
+  for (let i = 0; i < data.length; i += 4) {
+    rs += data[i]; gs += data[i + 1]; bs += data[i + 2]; n++;
+  }
+  return { r:rs/n, g:gs/n, b:bs/n };
+}
+function readFaceSamples() {
+  if (!stream || video.readyState < 2 || !video.videoWidth || !video.videoHeight) throw new Error('not-ready');
+  const vw = video.videoWidth, vh = video.videoHeight;
+  canvas.width = vw; canvas.height = vh;
+  ctx.drawImage(video, 0, 0, vw, vh);
+  const stageRect = $('#stage').getBoundingClientRect(), gridRect = grid.getBoundingClientRect();
+  const scale = Math.max(stageRect.width / vw, stageRect.height / vh);
+  const offsetX = (stageRect.width - vw * scale) / 2;
+  const offsetY = (stageRect.height - vh * scale) / 2;
+  const cellCssW = gridRect.width / 3, cellCssH = gridRect.height / 3;
+  const cellRawW = cellCssW / scale, cellRawH = cellCssH / scale;
+  const radius = Math.max(2, Math.round(Math.min(cellRawW, cellRawH) * .09));
+  const result = [];
+  for (let row = 0; row < 3; row++) for (let col = 0; col < 3; col++) {
+    const dispX = gridRect.left - stageRect.left + (col + .5) * cellCssW;
+    const dispY = gridRect.top - stageRect.top + (row + .5) * cellCssH;
+    const sx = (dispX - offsetX) / scale, sy = (dispY - offsetY) / scale;
+    result.push(samplePatch(sx, sy, radius));
+  }
+  return result;
+}
+captureBtn.addEventListener('click', () => {
+  try {
+    const f = currentFace(), samples = readFaceSamples();
+    const existing = faceScans.findIndex(x => x.id === f.id);
+    const record = { id:f.id, color:f.color, samples:samples };
+    if (existing >= 0) faceScans[existing] = record; else faceScans.push(record);
+    detected = null; results = null;
+    gridCells.forEach((cell, i) => cell.style.background = rgbCss(samples[i]));
+    captureBtn.hidden = true; retakeBtn.hidden = false; confirmBtn.hidden = false;
+    confirmBtn.textContent = faceIndex === FACES.length - 1 ? t('finish') : t('confirmNext');
+    setStatus(t('captured'));
+    renderStep();
+  } catch (e) { setStatus(t('captureError'), 'error'); }
+});
+retakeBtn.addEventListener('click', () => {
+  faceScans = faceScans.filter(f => f.id !== currentFace().id);
+  detected = null; results = null;
+  renderStep(); setStatus(t('retakeHint'));
+});
+confirmBtn.addEventListener('click', () => {
+  if (!faceScans.some(f => f.id === currentFace().id)) return;
+  if (faceIndex < FACES.length - 1) {
+    faceIndex++;
+    renderStep(); setStatus(t('nextReady'));
+  } else finishScan();
+});
+startBtn.addEventListener('click', startCamera);
+video.addEventListener('loadedmetadata', () => { captureBtn.disabled = !stream; });
+
+function rgbToLab(rgb) {
+  function linear(n) { n = n / 255; return n <= .04045 ? n / 12.92 : Math.pow((n + .055) / 1.055, 2.4); }
+  const r = linear(rgb.r), g = linear(rgb.g), b = linear(rgb.b);
+  const x = (r * .4124 + g * .3576 + b * .1805) / .95047;
+  const y = (r * .2126 + g * .7152 + b * .0722);
+  const z = (r * .0193 + g * .1192 + b * .9505) / 1.08883;
+  function f(v) { return v > .008856 ? Math.cbrt(v) : 7.787 * v + 16 / 116; }
+  const fx = f(x), fy = f(y), fz = f(z);
+  return { l:116 * fy - 16, a:500 * (fx - fy), b:200 * (fy - fz) };
+}
+function distance(a, b) { const dl = a.l - b.l, da = a.a - b.a, db = a.b - b.b; return dl*dl + da*da + db*db; }
+function classifyColor(rgb, prototypes) {
+  const lab = rgbToLab(rgb);
+  let best = prototypes[0], bestD = Infinity;
+  for (const p of prototypes) {
+    const d = distance(lab, p.lab);
+    if (d < bestD) { bestD = d; best = p; }
+  }
+  return best.id;
+}
+function finishScan() {
+  setStatus(t('allCaptured'));
+  stopCamera();
+  $('#scannerLayout').hidden = true;
+  $('#results').hidden = false;
+  const prototypes = faceScans.map(face => ({ id:face.color, lab:rgbToLab(face.samples[4]) }));
+  results = {};
+  FACES.forEach(face => {
+    const scan = faceScans.find(f => f.id === face.id);
+    results[face.id] = scan.samples.map(rgb => classifyColor(rgb, prototypes));
+  });
+  renderResults();
+  $('#results').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function renderResults() {
+  const cards = $('#faceCards');
+  cards.replaceChildren();
+  FACES.forEach(face => {
+    const card = document.createElement('article'); card.className = 'face-card';
+    const head = document.createElement('div'); head.className = 'face-card-head';
+    const symbol = document.createElement('span'); symbol.className = 'face-symbol'; symbol.textContent = face.id;
+    const meta = document.createElement('div'); meta.className = 'face-meta';
+    const title = document.createElement('div'); title.className = 'face-title'; title.textContent = t(face.nameKey);
+    const center = document.createElement('div'); center.className = 'face-center'; center.textContent = t(face.color) + ' ' + t('centerLabel');
+    meta.append(title, center); head.append(symbol, meta); card.append(head);
+    const faceGrid = document.createElement('div'); faceGrid.className = 'face-grid';
+    results[face.id].forEach((colorId, index) => {
+      const sticker = document.createElement('button');
+      sticker.type = 'button'; sticker.className = 'sticker' + (index === 4 ? ' center' : '');
+      sticker.style.setProperty('--sticker', colorHex(colorId));
+      sticker.disabled = index === 4;
+      sticker.title = index === 4 ? t('fixedCenter') : t('stickerLabel').replace('{face}', t(face.nameKey)).replace('{row}', String(Math.floor(index/3)+1)).replace('{col}', String(index%3+1)).replace('{color}', t(colorId));
+      sticker.setAttribute('aria-label', sticker.title);
+      sticker.dataset.face = face.id; sticker.dataset.index = String(index);
+      faceGrid.append(sticker);
+    });
+    card.append(faceGrid); cards.append(card);
+  });
+  renderCounts();
+}
+function renderCounts() {
+  const counts = Object.fromEntries(COLORS.map(c => [c.id, 0]));
+  Object.values(results).forEach(faceColors => faceColors.forEach(c => counts[c]++));
+  const host = $('#colorCounts'); host.replaceChildren();
+  COLORS.forEach(c => {
+    const chip = document.createElement('span');
+    chip.className = 'count-chip' + (counts[c.id] !== 9 ? ' bad-count' : '');
+    const dot = document.createElement('span'); dot.className = 'count-dot'; dot.style.setProperty('--dot', c.hex);
+    const text = document.createElement('span'); text.textContent = t(c.id) + ': ' + counts[c.id] + '/9';
+    chip.append(dot, text); host.append(chip);
+  });
+  const good = COLORS.every(c => counts[c.id] === 9);
+  const s = $('#countStatus'); s.textContent = good ? t('countGood') : t('countBad'); s.className = 'status ' + (good ? 'good' : 'error');
+}
+$('#faceCards').addEventListener('click', ev => {
+  const sticker = ev.target.closest('.sticker'); if (!sticker || sticker.disabled) return;
+  const faceId = sticker.dataset.face, index = Number(sticker.dataset.index), colors = results[faceId];
+  const now = COLORS.findIndex(c => c.id === colors[index]);
+  const next = (now + (ev.shiftKey ? COLORS.length - 1 : 1)) % COLORS.length;
+  colors[index] = COLORS[next].id;
+  renderResults();
+});
+$('#copyScan').addEventListener('click', async () => {
+  const data = { format:'rubik-colour-scan-v1', note:'Faces are shown in the scan-view orientation; this is a color record, not a validated solver state.', faces:{} };
+  FACES.forEach(face => { data.faces[face.id] = results[face.id]; });
+  const content = JSON.stringify(data, null, 2);
+  try {
+    if (!navigator.clipboard || !navigator.clipboard.writeText) throw new Error('unsupported');
+    await navigator.clipboard.writeText(content);
+    $('#copyStatus').textContent = t('copied'); $('#copyStatus').className = 'status good';
+  } catch (e) {
+    $('#copyStatus').textContent = t('copyError'); $('#copyStatus').className = 'status error';
+  }
+});
+$('#scanAgain').addEventListener('click', () => {
+  stopCamera(); faceIndex = 0; faceScans = []; detected = null; results = null;
+  $('#results').hidden = true; $('#scannerLayout').hidden = false;
+  gridCells.forEach(cell => cell.style.background = 'rgb(255 255 255 / .10)');
+  renderStep(); setStatus(''); startBtn.hidden = false; startBtn.disabled = false;
+  $('#scannerPanel').scrollIntoView({behavior:'smooth',block:'start'});
+});
+renderStatic();
+renderStep();
+})();
+</script>
+</body>
+</html>
