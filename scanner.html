@@ -490,10 +490,26 @@ let lastSolution = '';
 function rotateGridCW(grid) {
   return [grid[6],grid[3],grid[0],grid[7],grid[4],grid[1],grid[8],grid[5],grid[2]];
 }
-function gridRotations(grid) {
-  const out = [grid.slice()];
-  for (let i=1;i<4;i++) out.push(rotateGridCW(out[i-1]));
-  return out;
+function mirrorGridH(grid) {
+  return [grid[2],grid[1],grid[0],grid[5],grid[4],grid[3],grid[8],grid[7],grid[6]];
+}
+function gridVariants(grid) {
+  const byPattern = new Map();
+  for (let mirrored=0; mirrored<2; mirrored++) {
+    let rotated = mirrored ? mirrorGridH(grid) : grid.slice();
+    for (let rotation=0; rotation<4; rotation++) {
+      const key = rotated.join(',');
+      const candidate = {grid:rotated.slice(), rotation, mirrored:!!mirrored,
+        cost:(mirrored ? 100 : 0) + Math.min(rotation,4-rotation)};
+      const current = byPattern.get(key);
+      if (!current || candidate.cost<current.cost) byPattern.set(key,candidate);
+      rotated = rotateGridCW(rotated);
+    }
+  }
+  return Array.from(byPattern.values());
+}
+function rotateGridCW(grid) {
+  return [grid[6],grid[3],grid[0],grid[7],grid[4],grid[1],grid[8],grid[5],grid[2]];
 }
 function cubeStateString(faceGrids) {
   const grids = faceGrids || results;
@@ -513,44 +529,53 @@ function validCube(cube, facelets) {
     cube.asString()===facelets;
 }
 function findValidFaceOrientation() {
-  const rotations = {};
-  SOLVER_FACES.forEach(face => { rotations[face] = gridRotations(results[face]); });
-  const found = [];
+  const variants = {};
+  SOLVER_FACES.forEach(face => { variants[face] = gridVariants(results[face]); });
+  const found = new Map();
   const chosen = {};
   const turns = {};
-  function visit(index) {
+  const mirrors = {};
+  let bestCost = Infinity;
+
+  function visit(index, cost) {
+    if (cost > bestCost) return;
     if (index===SOLVER_FACES.length) {
       const facelets = cubeStateString(chosen);
       let cube;
       try { cube = window.Cube.fromString(facelets); } catch (e) { return; }
       if (!validCube(cube,facelets)) return;
-      const cost = SOLVER_FACES.reduce((sum,face)=>sum+Math.min(turns[face],4-turns[face]),0);
-      found.push({facelets,cube,turns:{...turns},cost});
+      const existing = found.get(facelets);
+      if (!existing || cost < existing.cost) {
+        found.set(facelets,{facelets,cube,turns:{...turns},mirrors:{...mirrors},cost});
+        if (cost < bestCost) bestCost = cost;
+      }
       return;
     }
     const face = SOLVER_FACES[index];
-    for (let rotation=0;rotation<4;rotation++) {
-      chosen[face] = rotations[face][rotation];
-      turns[face] = rotation;
-      visit(index+1);
+    for (const variant of variants[face]) {
+      chosen[face] = variant.grid;
+      turns[face] = variant.rotation;
+      mirrors[face] = variant.mirrored;
+      visit(index+1,cost+variant.cost);
     }
   }
-  visit(0);
-  if (!found.length) return {status:'none'};
-  found.sort((a,b)=>a.cost-b.cost);
-  const bestCost = found[0].cost;
-  const best = found.filter(candidate=>candidate.cost===bestCost);
-  if (best.length!==1) return {status:'ambiguous',count:best.length,cost:bestCost};
-  return {status:'ok',...best[0],alternatives:found.length};
+  visit(0,0);
+  if (!found.size) return {status:'none'};
+  const candidates = Array.from(found.values()).filter(candidate=>candidate.cost===bestCost);
+  if (candidates.length!==1) return {status:'ambiguous',count:candidates.length,cost:bestCost};
+  return {status:'ok',...candidates[0],alternatives:found.size};
 }
-function rotationNote(turns) {
+function rotationNote(turns, mirrors) {
   const labels = [];
   SOLVER_FACES.forEach(face => {
     const r = turns[face];
     if (r) labels.push(face + ' ' + (r===1?'90° clockwise':r===2?'180°':'90° counterclockwise'));
   });
-  return labels.length ? 'Face-image orientation adjusted for solver notation: ' + labels.join(', ') + '. Do not physically rotate these faces; keep white up, green front, red right while following the solution.' : '';
-} $('#solveCube').addEventListener('click', () => {
+  const mirrored = SOLVER_FACES.filter(face=>mirrors[face]);
+  if (mirrored.length) labels.push('mirrored camera view corrected digitally for ' + mirrored.join(', '));
+  return labels.length ? 'The scanner corrected face-image orientation digitally (' + labels.join('; ') + '). Do not rotate the cube because of this note; keep white up, green front, red right while following the solution.' : '';
+}
+$('#solveCube').addEventListener('click', () => {
   const st = $('#solveStatus'), btn = $('#solveCube');
   const counts = Object.fromEntries(COLORS.map(color => [color.id,0]));
   Object.values(results).forEach(face => face.forEach(color => counts[color]++));
@@ -612,7 +637,7 @@ function rotationNote(turns) {
         chip.title = 'Move ' + (index+1);
         host.append(chip);
       });
-      const note = [t('solutionNotation'),rotationNote(match.turns)].filter(Boolean).join(' ');
+      const note = [t('solutionNotation'),rotationNote(match.turns,match.mirrors)].filter(Boolean).join(' ');
       $('#solutionNotation').textContent = note;
       $('#solutionPanel').hidden = false;
       $('#copySolution').hidden = moves.length===0;
