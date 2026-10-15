@@ -1045,11 +1045,11 @@ module.exports["RubiksCube"] = RubiksCube;
 module.exports["RubiksCube"] = RubiksCube;
 },
 "src/models/Vector.js":function(require,module,exports){
-const angle = require("deps/gl-vec3//angle.js").default;
-const cross = require("deps/gl-vec3//cross.js").default;
-const rotateX = require("deps/gl-vec3//rotateX.js").default;
-const rotateY = require("deps/gl-vec3//rotateY.js").default;
-const rotateZ = require("deps/gl-vec3//rotateZ.js").default;
+const angle = require("deps/gl-vec3/angle.js").default;
+const cross = require("deps/gl-vec3/cross.js").default;
+const rotateX = require("deps/gl-vec3/rotateX.js").default;
+const rotateY = require("deps/gl-vec3/rotateY.js").default;
+const rotateZ = require("deps/gl-vec3/rotateZ.js").default;
 
 const rotate = {
 	x: rotateX,
@@ -2758,7 +2758,7 @@ module.exports["PLLSolver"] = PLLSolver;
 module.exports["PLLSolver"] = PLLSolver;
 },
 "src/utils/index.js":function(require,module,exports){
-const cross = require("deps/gl-vec3//cross.js").default;
+const cross = require("deps/gl-vec3/cross.js").default;
 const { Face } = require("src/models/Face.js");
 const { Vector } = require("src/models/Vector.js");
 
