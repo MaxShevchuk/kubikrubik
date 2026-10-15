@@ -177,6 +177,7 @@ p{margin:0}
   </section>
 </div>
 
+<script src="vendor/cfop-solver.js"></script>
 <script src="vendor/cubejs-cube.js"></script>
 <script src="vendor/cubejs-solve.js"></script>
 <script>
@@ -230,7 +231,7 @@ en: {
   copied:"Face colors copied as JSON.", copyError:"Clipboard access was blocked. Select and copy from your browser manually.",
   copiedUnsupported:"Clipboard unavailable. Try again on HTTPS.", cameraStopped:"Camera stopped.",
   retakeHint:"Capture the same face again, then confirm it.", resultIntro:"Check the recognized colors and fix any mistakes before copying.",
-  startOver:"Start a new scan", orientationHelp:"Before following the solution: white center on top, green center facing you, red center on your right. Keep the cube in this orientation while doing the moves.", solveCube:"Solve cube", solving:"Checking cube and calculating solution…", solveBadCounts:"Each color must appear exactly nine times. Correct the stickers first.", solveInvalid:"This is not a valid 3×3 cube state. Check sticker colors and the orientation of the scanned faces.", solveFailed:"Could not find a solution. Check the scan and try again.", solveSolved:"The cube is already solved.", solveDone:"Solution found: {n} moves.", solutionTitle:"Solution", solutionNotation:"R = right/red face, U = top/white face, F = front/green face. An apostrophe means counterclockwise; 2 means a half-turn. Look directly at the face being turned.", solutionCopied:"Solution copied.", solverLoading:"Preparing the solver (first run may take a few seconds)…", solveAlreadySolvedHint:"No moves are needed. The scanned faces are already solved.", solveNoOrientation:"No valid interpretation of these face images was found. Check each sticker and confirm the center layout: white top, green front, red right.", solveAmbiguous:"Several face orientations fit a legal cube. Rescan the six faces carefully, following the guide for which edge should be nearest to you."
+  startOver:"Start a new scan", orientationHelp:"Before following the solution: white center on top, green center facing you, red center on your right. Keep the cube in this orientation while doing the moves.", solveCube:"Solve cube", solving:"Checking cube and calculating solution…", solveBadCounts:"Each color must appear exactly nine times. Correct the stickers first.", solveInvalid:"This is not a valid 3×3 cube state. Check sticker colors and the orientation of the scanned faces.", solveFailed:"Could not find a solution. Check the scan and try again.", solveSolved:"The cube is already solved.", solveDone:"Solution found: {n} moves.", solutionTitle:"Solution", solutionNotation:"R = right/red face, U = top/white face, F = front/green face. An apostrophe means counterclockwise; 2 means a half-turn. Look directly at the face being turned.", solutionCopied:"Solution copied.", solverLoading:"Preparing the solver (first run may take a few seconds)…", solveAlreadySolvedHint:"No moves are needed. The scanned faces are already solved.", solveNoOrientation:"No valid interpretation of these face images was found. Check each sticker and confirm the center layout: white top, green front, red right.", solveAmbiguous:"Several face orientations fit a legal cube. Rescan the six faces carefully, following the guide for which edge should be nearest to you.", phaseCross:"1. Cross", phaseCrossHint:"Solve the four white edge pieces and match their side colors to the centers.", phaseF2L:"2. F2L pair", phaseF2LHint:"Insert one corner-edge pair while preserving solved pairs.", phaseOLL:"3. OLL", phaseOLLHint:"Orient the last-layer stickers so yellow faces up.", phasePLL:"4. PLL", phasePLLHint:"Permute the last-layer pieces to finish the cube.", cfopOrientation:"Keep white on top, green in front, and red on the right while following these moves."
 },
 uk: {
   pageTitle:"Сканер кубика — Мої алгоритми", brandEyebrow:"СПІДКУБІНГ 3×3", brandTitle:"Сканер кубика", back:"Алгоритми",
@@ -261,11 +262,11 @@ uk: {
   copied:"Кольори граней скопійовано як JSON.", copyError:"Браузер заблокував буфер обміну. Скопіюй вручну.",
   copiedUnsupported:"Буфер обміну недоступний. Спробуй через HTTPS.", cameraStopped:"Камеру вимкнено.",
   retakeHint:"Зніми цю саму грань ще раз і підтвердь.", resultIntro:"Перевір розпізнані кольори й виправ помилки перед копіюванням.",
-  startOver:"Почати нове сканування", orientationHelp:"Перед виконанням розв’язку: білий центр угорі, зелений — до тебе, червоний — праворуч. Не змінюй це положення кубика під час ходів.", solveCube:"Зібрати кубик", solving:"Перевіряю кубик і обчислюю розв’язок…", solveBadCounts:"Кожен колір має траплятися рівно дев’ять разів. Спочатку виправ наліпки.", solveInvalid:"Це невалідний стан кубика 3×3. Перевір кольори та орієнтацію просканованих граней.", solveFailed:"Не вдалося знайти розв’язок. Перевір сканування й спробуй ще раз.", solveSolved:"Кубик уже зібраний.", solveDone:"Розв’язок знайдено: {n} ходів.", solutionTitle:"Розв’язок", solutionNotation:"R — права/червона грань, U — верхня/біла, F — передня/зелена. Апостроф означає оберт проти годинникової стрілки, 2 — пів оберту. Дивись прямо на грань, яку крутиш.", solutionCopied:"Розв’язок скопійовано.", solverLoading:"Готую солвер (перший запуск може тривати кілька секунд)…", solveAlreadySolvedHint:"Ходи не потрібні. Проскановані грані вже зібрані.", solveNoOrientation:"Не вдалося скласти коректний стан із цих зображень. Перевір наліпки й розташування центрів: білий угорі, зелений спереду, червоний праворуч.", solveAmbiguous:"Кілька орієнтацій граней відповідають допустимому кубику. Перескануй шість граней уважно, дотримуючись підказок, який край має бути ближче до тебе."
+  startOver:"Почати нове сканування", orientationHelp:"Перед виконанням розв’язку: білий центр угорі, зелений — до тебе, червоний — праворуч. Не змінюй це положення кубика під час ходів.", solveCube:"Зібрати кубик", solving:"Перевіряю кубик і обчислюю розв’язок…", solveBadCounts:"Кожен колір має траплятися рівно дев’ять разів. Спочатку виправ наліпки.", solveInvalid:"Це невалідний стан кубика 3×3. Перевір кольори та орієнтацію просканованих граней.", solveFailed:"Не вдалося знайти розв’язок. Перевір сканування й спробуй ще раз.", solveSolved:"Кубик уже зібраний.", solveDone:"Розв’язок знайдено: {n} ходів.", solutionTitle:"Розв’язок", solutionNotation:"R — права/червона грань, U — верхня/біла, F — передня/зелена. Апостроф означає оберт проти годинникової стрілки, 2 — пів оберту. Дивись прямо на грань, яку крутиш.", solutionCopied:"Розв’язок скопійовано.", solverLoading:"Готую солвер (перший запуск може тривати кілька секунд)…", solveAlreadySolvedHint:"Ходи не потрібні. Проскановані грані вже зібрані.", solveNoOrientation:"Не вдалося скласти коректний стан із цих зображень. Перевір наліпки й розташування центрів: білий угорі, зелений спереду, червоний праворуч.", solveAmbiguous:"Кілька орієнтацій граней відповідають допустимому кубику. Перескануй шість граней уважно, дотримуючись підказок, який край має бути ближче до тебе.", phaseCross:"1. Хрест", phaseCrossHint:"Збери чотири білі ребра й сумісти їхні бокові кольори з центрами.", phaseF2L:"2. Пара F2L", phaseF2LHint:"Встав одну пару «кут + ребро», не руйнуючи вже зібрані пари.", phaseOLL:"3. OLL", phaseOLLHint:"Розверни наліпки останнього шару жовтим кольором догори.", phasePLL:"4. PLL", phasePLLHint:"Перестав елементи останнього шару, щоб завершити складання.", cfopOrientation:"Тримай білий центр зверху, зелений спереду, червоний праворуч під час виконання ходів."
 }
 };
 function t(key) { return (I18N[lang] && I18N[lang][key]) || I18N.en[key] || key; }
-let lang = 'en';
+let lang = 'uk';
 try {
   const saved = JSON.parse(localStorage.getItem('rubik-algorithms-v4') || 'null');
   if (saved && saved.settings && (saved.settings.lang === 'uk' || saved.settings.lang === 'en')) lang = saved.settings.lang;
@@ -580,75 +581,66 @@ $('#solveCube').addEventListener('click', () => {
   const counts = Object.fromEntries(COLORS.map(color => [color.id,0]));
   Object.values(results).forEach(face => face.forEach(color => counts[color]++));
   if (!COLORS.every(color => counts[color.id]===9)) {
-    st.textContent = t('solveBadCounts'); st.className = 'status error'; return;
+    st.textContent=t('solveBadCounts'); st.className='status error'; return;
   }
-
-  $('#solutionPanel').hidden = true;
-  $('#copySolution').hidden = true;
-  lastSolution = '';
+  $('#solutionPanel').hidden=true; $('#copySolution').hidden=true; lastSolution='';
   $('#solutionMoves').replaceChildren();
-
-  const alreadySolved = FACES.every(face => results[face.id].every(color => color===face.color));
-  if (alreadySolved) {
-    $('#solutionHeading').textContent = t('solutionTitle');
-    $('#solutionSummary').textContent = t('solveSolved');
-    $('#solutionNotation').textContent = t('solveAlreadySolvedHint');
-    $('#solutionPanel').hidden = false;
-    st.textContent = t('solveSolved'); st.className = 'status good';
-    $('#solutionPanel').scrollIntoView({behavior:'smooth',block:'nearest'});
-    return;
+  const alreadySolved=FACES.every(face=>results[face.id].every(color=>color===face.color));
+  if(alreadySolved){
+    $('#solutionHeading').textContent=t('solutionTitle');
+    $('#solutionSummary').textContent=t('solveSolved');
+    $('#solutionNotation').textContent=t('solveAlreadySolvedHint');
+    $('#solutionPanel').hidden=false; st.textContent=t('solveSolved'); st.className='status good'; return;
   }
-
-  btn.disabled = true;
-  st.textContent = t('solverLoading');
-  st.className = 'status';
-  setTimeout(() => {
+  btn.disabled=true; st.textContent=t('solverLoading'); st.className='status';
+  setTimeout(()=>{
     try {
-      if (!window.Cube || typeof window.Cube.initSolver!=='function') throw new Error('solver-missing');
-      // The camera view of an individual face can be rotated relative to solver facelet notation.
-      // Test all 4^6 grid orientations and keep only physically valid cubie states.
-      const match = findValidFaceOrientation();
-      if (match.status==='none') {
-        st.textContent = t('solveNoOrientation'); st.className = 'status error'; return;
+      if(!window.CFOPSolve) throw new Error('solver-missing');
+      const match=findValidFaceOrientation();
+      if(match.status==='none'){st.textContent=t('solveNoOrientation');st.className='status error';return}
+      if(match.status==='ambiguous'){st.textContent=t('solveAmbiguous');st.className='status error';return}
+      // CFOP solver expects F,R,U,D,L,B face order and lowercase face-relative colors.
+      const faceOrder=['F','R','U','D','L','B'];
+      const faceColor={F:'green',R:'red',U:'white',D:'yellow',L:'orange',B:'blue'};
+      const colorLetter={green:'f',red:'r',white:'u',yellow:'d',orange:'l',blue:'b'};
+      const state=faceOrder.map(face=>match.facelets.slice(['U','R','F','D','L','B'].indexOf(face)*9,['U','R','F','D','L','B'].indexOf(face)*9+9)
+        .split('').map(letter=>({U:'u',R:'r',F:'f',D:'d',L:'l',B:'b'}[letter])).join('')).join('');
+      const phases=window.CFOPSolve(state,{partitioned:true});
+      const phaseOrder=[
+        {id:'cross',title:t('phaseCross'),hint:t('phaseCrossHint')},
+        {id:'f2l',title:t('phaseF2L'),hint:t('phaseF2LHint')},
+        {id:'oll',title:t('phaseOLL'),hint:t('phaseOLLHint')},
+        {id:'pll',title:t('phasePLL'),hint:t('phasePLLHint')}
+      ];
+      const steps=[];
+      for(const phase of phaseOrder){
+        const value=phases[phase.id];
+        const chunks=Array.isArray(value)?value:[value];
+        chunks.forEach((moves,index)=>{if(moves && String(moves).trim()) steps.push({title:phase.title+(phase.id==='f2l'?' '+(index+1):''),hint:phase.hint,moves:String(moves).trim()})});
       }
-      if (match.status==='ambiguous') {
-        st.textContent = t('solveAmbiguous'); st.className = 'status error'; return;
+      const allMoves=steps.flatMap(step=>step.moves.split(/\s+/));
+      const verify=new window.CFOPRubiksCube(state);
+      verify.move(allMoves.map(m=>m.replace(/'/g,'prime')).join(' '));
+      if(!verify.isSolved()) throw new Error('verification-failed');
+      lastSolution=allMoves.join(' ');
+      $('#solutionHeading').textContent=t('solutionTitle');
+      $('#solutionSummary').textContent=t('solveDone').replace('{n}',String(allMoves.length));
+      const host=$('#solutionMoves'); host.replaceChildren();
+      for(const step of steps){
+        const card=document.createElement('div');
+        card.style.cssText='flex:1 1 100%;padding:12px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px';
+        const heading=document.createElement('strong'); heading.textContent=step.title; card.append(heading);
+        const hint=document.createElement('p'); hint.textContent=step.hint; hint.style.cssText='margin:5px 0 9px;color:var(--muted)'; card.append(hint);
+        const alg=document.createElement('div'); alg.textContent=step.moves.replace(/prime/g,"'"); alg.style.cssText='font:700 16px var(--font-mono);line-height:1.8;overflow-wrap:anywhere'; card.append(alg);
+        host.append(card);
       }
-
-      window.Cube.initSolver();
-      const cube = window.Cube.fromString(match.facelets);
-      if (!validCube(cube,match.facelets)) {
-        st.textContent = t('solveInvalid'); st.className = 'status error'; return;
-      }
-      const solution = cube.solve();
-      if (solution==null) throw new Error('no-solution');
-      const verification = cube.clone().move(solution);
-      if (!verification.isSolved()) throw new Error('verification-failed');
-
-      lastSolution = solution.trim();
-      const moves = lastSolution ? lastSolution.split(/\s+/) : [];
-      $('#solutionHeading').textContent = t('solutionTitle');
-      $('#solutionSummary').textContent = moves.length ? t('solveDone').replace('{n}',String(moves.length)) : t('solveSolved');
-      const host = $('#solutionMoves');
-      moves.forEach((move,index) => {
-        const chip = document.createElement('span');
-        chip.textContent = move;
-        chip.style.cssText = 'display:inline-grid;place-items:center;min-width:42px;height:38px;padding:0 9px;border:1px solid var(--line-strong);border-radius:9px;background:var(--panel);font:700 16px var(--font-mono)';
-        chip.title = 'Move ' + (index+1);
-        host.append(chip);
-      });
-      const note = [t('solutionNotation'),rotationNote(match.turns,match.mirrors)].filter(Boolean).join(' ');
-      $('#solutionNotation').textContent = note;
-      $('#solutionPanel').hidden = false;
-      $('#copySolution').hidden = moves.length===0;
-      st.textContent = ''; st.className = 'status good';
+      $('#solutionNotation').textContent=t('solutionNotation')+' '+t('cfopOrientation');
+      $('#solutionPanel').hidden=false; $('#copySolution').hidden=false; st.textContent='';st.className='status good';
       $('#solutionPanel').scrollIntoView({behavior:'smooth',block:'nearest'});
-    } catch (error) {
-      st.textContent = error && error.message==='solver-missing' ? t('solveFailed') : t('solveInvalid');
-      st.className = 'status error';
-    } finally {
-      btn.disabled = false;
-    }
+    } catch(error) {
+      st.textContent=error&&error.message==='solver-missing'?t('solveFailed'):t('solveInvalid');
+      st.className='status error';
+    } finally {btn.disabled=false}
   },50);
 });
 $('#copySolution').addEventListener('click', async () => {
