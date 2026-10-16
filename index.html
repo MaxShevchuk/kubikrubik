@@ -1309,6 +1309,12 @@ body {
       // Trace the visible bottom row across the front and right sides.
       const y = wide ? -0.68 : -1.05;
       pushCurve(bezier([-1.08, y, 1.56], [-0.32, y, 1.56], [1.25, y, 1.56], [1.56, y, -0.35]));
+    } else if (rotation && L === 'z') {
+      // z follows F: roll from the top face onto the right face.
+      // The prime form reverses each curve, so z' rolls back the other way.
+      const overCorner = z => bezier([0.12, 1.54, z], [0.78, 1.54, z], [1.54, 0.78, z], [1.54, 0.12, z], 24);
+      pushCurve(overCorner(0.92));
+      pushCurve(overCorner(-0.22));
     } else {
       const line = (p, q) => (dirSign > 0 ? [p, q] : [q, p]);
       let p, q;
