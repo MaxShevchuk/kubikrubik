@@ -941,8 +941,8 @@ body {
     ['BM4', "(R U R' U') R U2 R' U' R U R'"], ['BM5', "R U' R' U2 R U R' F' U' F"], ['BM6', "F' U F U2 R U R' U R U' R'"]
   ];
   const OLL = [
-    ['CR1', "R U2 R' U' (R U R' U') R U' R'"], ['CR2', "R U2 R2 U' R2 U' R2 U2 R"], ['CR3', "y R U2 R' U' R U' R'"], ['CR4', "R U' L' U R' U' L"],
-    ['CR5', "R2 D' R U2 R' D R U2 R"], ['CR6', "r U R' U' r' F R F'"], ['CR7', "R' F' L' F R F' L F"], ['CR8', ""],
+    ['CR1', "R U2 R' U' (R U R' U') R U' R'"], ['CR2', "R U2 R2 U' R2 U' R2 U2 R"], ['CR3', "y R U2 R' U' R U' R'"], ['CR4', "R U R' U R U2 R'"],
+    ['CR5', "R2 D' R U2 R' D R U2 R"], ['CR6', "r U R' U' r' F R F'"], ['CR7', "F R' F' r U R U' r'"], ['CR8', ""],
     ['PT1', "R U2 R2 F R F' U2 R' F R F'"], ['PT2', "F (R U R' U') F' f (R U R' U') f'"], ['PT3', "M R U R' U r U2 r' U M'"],
     ['PT4', "M U' r U2 r' U' R U' R2 r"], ['PT5', "r' R U (R U R' U') r R2 F R F'"], ['PT6', "F R U R' d R' U2 R' F R F'"],
     ['PT7', "R U R' U R' F R F' U2 R' F R F'"], ['PT8', "r' R U (R U R' U') r2 R2 U R U' r'"],
@@ -965,10 +965,10 @@ body {
     ['4C1', "M' U' M U2 M' U' M"], ['4C2', "L' (R U R' U') L R' F R F'"]
   ];
   const PLL = [
-    ['U1', "R U R' U R' U' R2 U' R' U R' U R"], ['U2', "R' U R' U' R' U' R' U R U R2"], ['Z', "M2 U' M2 U' M' U2 M2 U2 M' U2"],
-    ['H', "M2 U M2 U2 M2 U M2"], ['A1', "R U R' F' r U R' U' r' F R2 U' R'"], ['A2', "R U R2 F' r U R U' r' F R U' R'"],
+    ['U1', "R U R' U R' U' R2 U' R' U R' U R"], ['U2', "M2 U' M' U2 M U' M2"], ['Z', "M2 U' M2 U' M' U2 M2 U2 M' U2"],
+    ['H', "M2 U' M2 U2 M2 U' M2"], ['A1', "R U R' F' r U R' U' r' F R2 U' R'"], ['A2', "R U R2 F' r U R U' r' F R U' R'"],
     ['E', "x' R U' R' D R U R' D' R U R' D R U' R' D'"], ['J1', "R U R' F' (R U R' U') R' F R2 U' R'"],
-    ['J2', "R' U' R2 B R' U' R' U R B' R' U R"], ['T', "(R U R' U') R' F R2 U' R' U' R U R' F'"],
+    ['J2', "R' U2 R U R' U2 L U' R U L'"], ['T', "(R U R' U') R' F R2 U' R' U' R U R' F'"],
     ['F', "R' U' F' (R U R' U') R' F R2 U' R' U' R U R' U R"], ['Y', "F R U' R' U' R U R' F' (R U R' U') R' F R F'"],
     ['V', "R' U R' U' y R' F' R2 U' R' U R' F R F"], ['R1', "R' U2 R U2 R' F (R U R' U') R' F' R2"],
     ['R2', "R U' R' U' R U R D R' U' R D' R' U2 R'"], ['N1', "R U R' U R U R' F' (R U R' U') R' F R2 U' R' U2 R U' R'"],
@@ -1378,8 +1378,8 @@ const invertText = alg => E.algText(E.invertMoves(E.parseAlg(alg).moves));
 const normText = alg => E.algText(E.parseAlg(alg).moves);
 /* A second, more convenient formula for every OLL and PLL case (each one is checked against its case by the cube engine). */
 const ALT = {
-  OLL: { "CR1": "R' U2 R U R' U' R U R' U R", "CR2": "R' U2 R2 U R2 U R2 U2 R'", "CR3": "U' R U2 R' U' R U' R'", "CR4": "R U R' U R U2 R'", "CR5": "U2 R2 D R' U2 R D' R' U2 R'", "CR6": "F R F' L F R' F' L'", "CR7": "U2 F R' F' r U R U' r'", "PT1": "U R U' R2 D' r U' r' D R2 U R'", "PT2": "U2 F R' F' R U2 F R' F' R2 U2 R'", "PT3": "r' R2 U R' U r U2 r' U M'", "PT4": "M U' r U2 r' U' R U' R' M'", "PT5": "M U R U R' U' M' R' F R F'", "PT6": "U' R U2 R2 F R F' U2 M' U R U' r'", "PT7": "U2 F R' F' R M U R U' R' U' M'", "PT8": "M U R U R' U' M2 U R U' r'", "LN1": "U2 R' U' F R' F' R F R' F' R U R", "LN2": "R U' B2 D B' U2 B D' B2 d B'", "LN3": "U2 F U R U' R' U R U' R' F'", "LN4": "r U r' U R U' R' U R U' R' r U' r'", "SL1": "U' r U2 R' U' R U R' U' R U' r'", "SL2": "U' F R' F2 R U2 R U2 R' F", "SL3": "R' U' R' F R F' R' F R F' U R", "SL4": "U' R' F R F' U2 R2 B' R' B R'", "SL5": "U' F' R U2 R' U2 R' F2 R F'", "SL6": "F R' F' U2 R U R' U R2 U2 R'", "Q1": "F R U' R' U R U2 R' U' F'", "Q2": "U2 r' U2 R U R' U r", "SZ1": "r U R' U R U2 r'", "SZ2": "U2 M' R' U' R U' R' U2 R U' M", "SZ3": "R U' R' U2 R U B U' B' U' R'", "SZ4": "U R' F U F2 U F2 U2 F' U R", "SZ5": "U2 R U2 R' U2 R' F R F'", "SZ6": "U' r' R2 U R' U R U2 R' U M'", "FSH1": "F R' F' R U R U' R'", "FSH2": "U R' U2 R2 B' R' B R' U2 R", "FSH3": "R U R' U' R' F R2 U R' U' F'", "FSH4": "U' F U F' R' F R U' R' F' R", "C1": "U' R' U' R' F R F' U R", "C2": "F' U2 F2 U R U' R2 F' R2 U' R'", "L1": "R' F R U R' F' R F U' F'", "L2": "r' U' r R' U' R U r' U r", "L3": "F U R U2 R' U' R U R' F'", "L4": "U2 r U r' R U R' U' r U' r'", "P1": "U L U F U' F' L'", "P2": "U2 R U B' U' R' U R B R'", "P3": "U' R' U' F' U F R", "P4": "R' U' F U R U' R' F' R", "T1": "F R U' R' U R U R' F'", "T2": "U R' F' U' F U R", "W1": "F' U' F2 R U R' U' F2 U2 F", "W2": "U2 R' U' R U' R' U R U R B' R' B", "Z1": "R' F R U R' U' F' U R", "Z2": "U2 R B' R' U' R U B U' R'", "4C1": "U r U R' U' M U R U' R'", "4C2": "R U R' U' M' U R U' r'" },
-  PLL: { "U1": "M2 U M' U2 M U M2", "U2": "M2 U' M' U2 M U' M2", "Z": "M2 U2 M U M2 U M2 U M", "H": "R2 U2 R U2 R2 U2 R2 U2 R U2 R2", "A1": "U R' F R' B2 R F' R' B2 R2", "A2": "U R2 B2 R F R' B2 R F' R", "E": "R B' R' F R B R' F' R B R' F R B' R' F'", "J1": "R U2 R' U' R U2 L' U R' U' L", "J2": "R' U L' U2 R U' R' U2 R L", "T": "F R U' R' U R U R2 F' R U R U' R'", "F": "U R' U2 R' d' R' F' R2 U' R' U R' F R U' F", "Y": "F R' F' R U R U' R' F R U' R' U R U R' F'", "V": "R' U R' d' R' F' R2 U' R' U R' F R F", "R1": "U R2 F R U R U' R' F' R U2 R' U2 R", "R2": "R U R' F' R U2 R' U2 R' F R U R U2 R'", "N1": "L U' R U2 L' U R' L U' R U2 L' U R'", "N2": "R' U R U' R' F' U' F R U R' F R' F' R U' R", "G1": "R2 U R' U R' U' R U' R2 U' D R' U R D'", "G2": "U' D R' U' R D' U R2 U R' U R U' R U' R2", "G3": "U2 R2 U' R U' R U R' U R2 U D' R U' R' D", "G4": "U' D' R U R' D U' R2 U' R U' R' U R' U R2" }
+  OLL: { "CR1": "R U R' U R U' R' U R U2 R'", "CR2": "R' U2 R2 U R2 U R2 U2 R'", "CR3": "U' R U2 R' U' R U' R'", "CR4": "R U' L' U R' U' L", "CR5": "U2 R2 D R' U2 R D' R' U2 R'", "CR6": "F R F' L F R' F' L'", "CR7": "R U2 R D R' U2 R D' R2", "PT1": "U R U' R2 D' r U' r' D R2 U R'", "PT2": "U2 F R' F' R U2 F R' F' R2 U2 R'", "PT3": "r' R2 U R' U r U2 r' U M'", "PT4": "M U' r U2 r' U' R U' R' M'", "PT5": "M U R U R' U' M' R' F R F'", "PT6": "U' R U2 R2 F R F' U2 M' U R U' r'", "PT7": "U2 F R' F' R M U R U' R' U' M'", "PT8": "M U R U R' U' M2 U R U' r'", "LN1": "U2 R' U' F R' F' R F R' F' R U R", "LN2": "R U' B2 D B' U2 B D' B2 d B'", "LN3": "U2 F U R U' R' U R U' R' F'", "LN4": "r U r' U R U' R' U R U' R' r U' r'", "SL1": "U' r U2 R' U' R U R' U' R U' r'", "SL2": "U' F R' F2 R U2 R U2 R' F", "SL3": "R' U' R' F R F' R' F R F' U R", "SL4": "U' R' F R F' U2 R2 B' R' B R'", "SL5": "U' F' R U2 R' U2 R' F2 R F'", "SL6": "F R' F' U2 R U R' U R2 U2 R'", "Q1": "F R U' R' U R U2 R' U' F'", "Q2": "U2 r' U2 R U R' U r", "SZ1": "r U R' U R U2 r'", "SZ2": "U2 M' R' U' R U' R' U2 R U' M", "SZ3": "R U' R' U2 R U B U' B' U' R'", "SZ4": "U R' F U F2 U F2 U2 F' U R", "SZ5": "U2 R U2 R' U2 R' F R F'", "SZ6": "U' r' R2 U R' U R U2 R' U M'", "FSH1": "F R' F' R U R U' R'", "FSH2": "U R' U2 R2 B' R' B R' U2 R", "FSH3": "R U R' U' R' F R2 U R' U' F'", "FSH4": "U' F U F' R' F R U' R' F' R", "C1": "U' R' U' R' F R F' U R", "C2": "F' U2 F2 U R U' R2 F' R2 U' R'", "L1": "R' F R U R' F' R F U' F'", "L2": "r' U' r R' U' R U r' U r", "L3": "F U R U2 R' U' R U R' F'", "L4": "U2 r U r' R U R' U' r U' r'", "P1": "U L U F U' F' L'", "P2": "U2 R U B' U' R' U R B R'", "P3": "U' R' U' F' U F R", "P4": "R' U' F U R U' R' F' R", "T1": "F R U' R' U R U R' F'", "T2": "U R' F' U' F U R", "W1": "F' U' F2 R U R' U' F2 U2 F", "W2": "U2 R' U' R U' R' U R U R B' R' B", "Z1": "R' F R U R' U' F' U R", "Z2": "U2 R B' R' U' R U B U' R'", "4C1": "U r U R' U' M U R U' R'", "4C2": "R U R' U' M' U R U' r'" },
+  PLL: { "U1": "M2 U M' U2 M U M2", "U2": "R' U R' U' R' U' R' U R U R2", "Z": "M2 U2 M U M2 U M2 U M", "H": "R2 U2 R U2 R2 U2 R2 U2 R U2 R2", "A1": "U R' F R' B2 R F' R' B2 R2", "A2": "U R2 B2 R F R' B2 R F' R", "E": "R B' R' F R B R' F' R B R' F R B' R' F'", "J1": "R U2 R' U' R U2 L' U R' U' L", "J2": "R' U L' U2 R U' R' U2 R L", "T": "F R U' R' U R U R2 F' R U R U' R'", "F": "U R' U2 R' d' R' F' R2 U' R' U R' F R U' F", "Y": "F R' F' R U R U' R' F R U' R' U R U R' F'", "V": "R' U R' d' R' F' R2 U' R' U R' F R F", "R1": "U R2 F R U R U' R' F' R U2 R' U2 R", "R2": "R U R' F' R U2 R' U2 R' F R U R U2 R'", "N1": "L U' R U2 L' U R' L U' R U2 L' U R'", "N2": "R' U R U' R' F' U' F R U R' F R' F' R U' R", "G1": "R2 U R' U R' U' R U' R2 U' D R' U R D'", "G2": "U' D R' U' R D' U R2 U R' U R U' R U' R2", "G3": "U2 R2 U' R U' R U R' U R2 U D' R U' R' D", "G4": "U' D' R U R' D U' R2 U' R U' R' U R' U R2" }
 };
 const defaultAlg = (stage, id) => (D[stage].find(x => x[0] === id) || [0, ''])[1];
 
@@ -1396,7 +1396,7 @@ function cleanItem(it) {
   return o;
 }
 function hydrate(saved) {
-  const out = { v: 4, altSeed: saved.altSeed | 0, groups: {}, progress: {}, settings: {} };
+  const out = { v: 4, altSeed: saved.altSeed | 0, formulaSeed: saved.formulaSeed | 0, groups: {}, progress: {}, settings: {} };
   for (const s of STAGES) {
     const seen = new Set();
     out.groups[s] = (Array.isArray(saved.groups && saved.groups[s]) ? saved.groups[s] : []).map(cleanItem).filter(it => it.id && !seen.has(it.id) && seen.add(it.id));
@@ -1448,7 +1448,7 @@ function load() {
   for (const k of LEGACY) {
     try { const o = JSON.parse(store.get(k)); if (o && o.F2L && o.OLL && o.PLL) return migrate(o); } catch { /* next */ }
   }
-  return { v: 4, altSeed: 2, groups: defaultGroups(), progress: {}, settings: {} };
+  return { v: 4, altSeed: 2, formulaSeed: 1, groups: defaultGroups(), progress: {}, settings: {} };
 }
 let db = load();
 let saveTimer = 0, dirty = false;
@@ -1456,6 +1456,37 @@ let dataVer = 0, ready = false, prTimer = 0;
 function save(quiet) { dirty = true; if (!quiet) dataVer++; clearTimeout(saveTimer); saveTimer = setTimeout(flush, 200); }
 function flush() { clearTimeout(saveTimer); if (!dirty) return; dirty = false; store.set(KEY, JSON.stringify(db)); }
 addEventListener('pagehide', flush);
+
+// Bring earlier built-in algorithms in saved browsers in line with the owner's
+// chosen defaults. Only replace exact previous defaults, not custom formulas.
+const DEFAULT_FORMULA_UPDATES = {
+  OLL: {
+    CR1: { altWas: "R' U2 R U R' U' R U R' U R" },
+    CR4: { was: "R U' L' U R' U' L", altWas: "R U R' U R U2 R'" },
+    CR7: { was: "R' F' L' F R F' L F", altWas: "U2 F R' F' r U R U' r'" }
+  },
+  PLL: {
+    U2: { was: "R' U R' U' R' U' R' U R U R2", altWas: "M2 U' M' U2 M U' M2" },
+    H: { was: "M2 U M2 U2 M2 U M2" },
+    J2: { was: "R' U' R2 B R' U' R' U R B' R' U R" }
+  }
+};
+if ((db.formulaSeed | 0) < 1) {
+  for (const [stage, updates] of Object.entries(DEFAULT_FORMULA_UPDATES)) {
+    for (const [id, old] of Object.entries(updates)) {
+      const item = db.groups[stage].find(it => it.id === id);
+      if (!item) continue;
+      if (old.was && normText(item.alg) === normText(old.was)) {
+        item.alg = defaultAlg(stage, id);
+      }
+      const nextAlt = ALT[stage][id];
+      if (old.altWas && nextAlt) item.alts = item.alts.map(alg =>
+        normText(alg) === normText(old.altWas) ? nextAlt : alg);
+    }
+  }
+  db.formulaSeed = 1;
+  save();
+}
 
 // Older saved copies have no alternatives yet: add the built-in one to untouched OLL/PLL cases, once.
 if ((db.altSeed | 0) < 2) {
@@ -2358,15 +2389,20 @@ function tmFmt(ms) {
 }
 const tmAo = (a, n) => { if (a.length < n) return null; const w = a.slice(-n).sort((x, y) => x - y).slice(1, -1); return w.includes(Infinity) ? Infinity : w.reduce((x, y) => x + y, 0) / w.length; };
 function tmBestAo(a, n) { let b = null; for (let i = n; i <= a.length; i++) { const v = tmAo(a.slice(0, i), n); if (v != null && v !== Infinity && (b == null || v < b)) b = v; } return b; }
-function tmScramble() {
-  const F = ['U', 'D', 'L', 'R', 'F', 'B'], ax = { U: 0, D: 0, L: 1, R: 1, F: 2, B: 2 }, out = [];
-  while (out.length < 20) {
-    const f = F[Math.floor(Math.random() * 6)], l = out[out.length - 1], l2 = out[out.length - 2];
-    if (l && l[0] === f) continue;
-    if (l && l2 && ax[l[0]] === ax[f] && ax[l2[0]] === ax[f]) continue;
-    out.push(f + ['', "'", '2'][Math.floor(Math.random() * 3)]);
-  }
-  return out.join(' ');
+function tmScramble(previous = '') {
+  const F = ['U', 'D', 'L', 'R', 'F', 'B'], ax = { U: 0, D: 0, L: 1, R: 1, F: 2, B: 2 };
+  let scramble;
+  do {
+    const out = [];
+    while (out.length < 20) {
+      const f = F[Math.floor(Math.random() * 6)], l = out[out.length - 1], l2 = out[out.length - 2];
+      if (l && l[0] === f) continue;
+      if (l && l2 && ax[l[0]] === ax[f] && ax[l2[0]] === ax[f]) continue;
+      out.push(f + ['', "'", '2'][Math.floor(Math.random() * 3)]);
+    }
+    scramble = out.join(' ');
+  } while (scramble === previous);
+  return scramble;
 }
 function timerHTML() {
   return '<div class="tm"><div class="tmTop"><p class="tmScr" id="tmScr" aria-live="polite"></p>' +
@@ -2443,7 +2479,7 @@ function tmStop() {
   const x = { t: Math.round(ms), at: Date.now(), s: TM.scr };
   if (TM.pen) x.d = TM.pen;
   const sv = tdb().solves; sv.push(x); if (sv.length > 1000) sv.shift();
-  save(true); TM.scr = tmScramble(); tmRender();
+  save(true); TM.scr = tmScramble(TM.scr); tmRender();
 }
 function tmCancel() { clearTimeout(TM.hold); TM.phase = 'idle'; TM.held = 'none'; tmPaint(); }
 function timerKeys(ev) {
@@ -2460,7 +2496,7 @@ els.main.addEventListener('contextmenu', ev => { if (ev.target.closest('#tmPad')
 els.main.addEventListener('click', async ev => {
   const b = ev.target.closest('[data-tm]'); if (!b) return;
   const a = b.dataset.tm, sv = tdb().solves, li = b.closest('li'), i = li ? +li.dataset.i : -1;
-  if (a === 'scr') { if (!TM.busy()) { TM.scr = tmScramble(); tmRender(); } }
+  if (a === 'scr') { if (!TM.busy()) { TM.scr = tmScramble(TM.scr); tmRender(); } }
   else if (a === 'insp') { tdb().inspect = !tdb().inspect; save(true); tmRender(); }
   else if (a === 'plus2' && sv[i]) { if (sv[i].d === 'plus2') delete sv[i].d; else sv[i].d = 'plus2'; save(true); tmRender(); }
   else if (a === 'dnf' && sv[i]) { if (sv[i].d === 'dnf') delete sv[i].d; else sv[i].d = 'dnf'; save(true); tmRender(); }
