@@ -423,6 +423,15 @@ body {
   .tmTop { display: grid; gap: 10px; }
   .tmScr { font: 600 clamp(17px, 3.6vw, 24px)/1.55 var(--font-mono); letter-spacing: .02em; word-spacing: .3em; text-align: center; padding: 14px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; text-wrap: balance; user-select: text; min-height: 3.4em; }
   .tmTools { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  .tmScrHistory { border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }
+  .tmScrHistory summary { padding: 10px 14px; color: var(--muted); font-size: 13px; font-weight: 600; cursor: pointer; }
+  .tmScrHistory summary::marker { color: var(--accent); }
+  .tmScrHistory .n { margin-left: 8px; color: var(--faint); font: 500 12px var(--font-mono); }
+  .tmScrList { list-style: none; margin: 0; padding: 0 14px 12px; display: grid; gap: 8px; }
+  .tmScrList li { display: grid; grid-template-columns: 2ch minmax(0, 1fr); gap: 10px; padding-top: 10px; border-top: 1px solid var(--line); font: 500 13px/1.65 var(--font-mono); user-select: text; }
+  .tmScrList .num { color: var(--faint); }
+  .tmScrList .sc { word-spacing: .18em; overflow-wrap: anywhere; }
+  .tmScrList .empty { display: block; color: var(--muted); font: 400 13px/1.5 var(--font-body); }
   .tm .btn[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
   .tmPad { display: grid; place-content: center; justify-items: center; gap: 8px; min-height: clamp(220px, 38vh, 340px); padding: 16px; border-radius: 22px; border: 2px solid var(--line-strong); background: var(--panel); text-align: center; cursor: pointer; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: none; -webkit-tap-highlight-color: transparent; transition: background-color .12s, border-color .12s; }
   .tmPad[data-state="wait"] { background: var(--bad-soft); border-color: var(--bad); }
@@ -1410,7 +1419,7 @@ function hydrate(saved) {
     }
   }
   if (saved.timer && typeof saved.timer === 'object') {
-    out.timer = { solves: [], inspect: !!saved.timer.inspect };
+    out.timer = { solves: [], inspect: !!saved.timer.inspect, scrambleHistory: [] };
     for (const x of (Array.isArray(saved.timer.solves) ? saved.timer.solves.slice(-1000) : [])) {
       if (!x || !(x.t > 0) || x.t > 1e8) continue;
       const o = { t: x.t | 0, at: x.at | 0 };
@@ -1418,6 +1427,9 @@ function hydrate(saved) {
       if (typeof x.s === 'string') o.s = x.s.slice(0, 200);
       out.timer.solves.push(o);
     }
+    out.timer.scrambleHistory = (Array.isArray(saved.timer.scrambleHistory) ? saved.timer.scrambleHistory : out.timer.solves.map(x => x.s))
+      .filter(s => typeof s === 'string' && s.trim()).slice(-5).map(s => s.slice(0, 200));
+    if (typeof saved.timer.currentScramble === 'string' && saved.timer.currentScramble.trim()) out.timer.currentScramble = saved.timer.currentScramble.slice(0, 200);
   }
   if (saved.settings && typeof saved.settings === 'object') {
     if (saved.settings.palette === 'white') out.settings.palette = 'white';
@@ -2379,7 +2391,7 @@ $('#resetBtn').addEventListener('click', async () => {
 });
 
 /* ── timer ───────────────────────────────────────────────── */
-const tdb = () => db.timer || (db.timer = { solves: [], inspect: false });
+const tdb = () => db.timer || (db.timer = { solves: [], inspect: false, scrambleHistory: [] });
 const TM = { phase: 'idle', held: 'none', src: '', keyDown: false, t0: 0, ins0: 0, hold: 0, scr: '', pen: null, busy() { return this.phase === 'running' || this.phase === 'inspect'; } };
 const tmEff = x => x.d === 'dnf' ? Infinity : x.t + (x.d === 'plus2' ? 2000 : 0);
 function tmFmt(ms) {
@@ -2404,9 +2416,18 @@ function tmScramble(previous = '') {
   } while (scramble === previous);
   return scramble;
 }
+function tmNextScramble() {
+  const t = tdb(), history = t.scrambleHistory || [];
+  if (TM.scr) history.push(TM.scr);
+  t.scrambleHistory = history.slice(-5);
+  TM.scr = tmScramble(TM.scr);
+  t.currentScramble = TM.scr;
+  save(true);
+}
 function timerHTML() {
   return '<div class="tm"><div class="tmTop"><p class="tmScr" id="tmScr" aria-live="polite"></p>' +
-    '<div class="tmTools"><button type="button" class="btn sm" data-tm="scr">New scramble</button><button type="button" class="btn sm" id="tmInsp" data-tm="insp" aria-pressed="false">Inspection</button></div></div>' +
+    '<div class="tmTools"><button type="button" class="btn sm" data-tm="scr">New scramble</button><button type="button" class="btn sm" id="tmInsp" data-tm="insp" aria-pressed="false">Inspection</button></div>' +
+    '<details class="tmScrHistory"><summary>Previous scrambles<span class="n" id="tmScrCount"></span></summary><ol class="tmScrList" id="tmScrHistory"></ol></details></div>' +
     '<div class="tmPad" id="tmPad" role="button" tabindex="0" aria-label="Timer pad" data-state="idle"><div class="tmTime" id="tmTime">0.00</div><div class="tmHint" id="tmHint"></div></div>' +
     '<div class="tmStats" id="tmStats"></div>' +
     '<div class="tmHistHead"><h3>Solves<span class="n" id="tmCount"></span></h3><button type="button" class="btn sm" data-tm="clear">Clear all</button></div>' +
@@ -2437,6 +2458,10 @@ function tmRender() {
   if (!document.getElementById('tmPad')) return;
   const sv = tdb().solves, a = sv.map(tmEff), fin = a.filter(x => x !== Infinity);
   tmSet('tmScr', TM.scr);
+  const history = (tdb().scrambleHistory || []).slice(-5).reverse();
+  tmSet('tmScrCount', history.length + '/5');
+  document.getElementById('tmScrHistory').innerHTML = history.length ? history.map((s, i) =>
+    '<li><span class="num">' + (i + 1) + '</span><span class="sc">' + esc(s) + '</span></li>').join('') : '<li class="empty">No previous scrambles yet.</li>';
   document.getElementById('tmInsp').setAttribute('aria-pressed', String(!!tdb().inspect));
   const f = v => v == null ? '–' : tmFmt(v);
   const row = (name, cur, best) => '<div class="tmRow"><b>' + name + '</b><span>' + f(cur) + '</span><span>' + f(best) + '</span></div>';
@@ -2452,7 +2477,7 @@ function tmRender() {
     '<button type="button" class="tmMini" data-tm="del" aria-label="Delete solve">×</button></li>').join('') : '<li class="empty">No solves yet.</li>';
   tmPaint();
 }
-function timerShow() { if (!TM.scr) TM.scr = tmScramble(); tmRender(); }
+function timerShow() { TM.scr = tdb().currentScramble || ''; if (!TM.scr) tmNextScramble(); tmRender(); }
 function tmDown(src) {
   if (TM.phase === 'running') { tmStop(); return; }
   if (TM.held !== 'none') return;
@@ -2479,10 +2504,11 @@ function tmStop() {
   const x = { t: Math.round(ms), at: Date.now(), s: TM.scr };
   if (TM.pen) x.d = TM.pen;
   const sv = tdb().solves; sv.push(x); if (sv.length > 1000) sv.shift();
-  save(true); TM.scr = tmScramble(TM.scr); tmRender();
+  tmNextScramble(); tmRender();
 }
 function tmCancel() { clearTimeout(TM.hold); TM.phase = 'idle'; TM.held = 'none'; tmPaint(); }
 function timerKeys(ev) {
+  if (TM.phase !== 'running' && ev.target.closest('.tmScrHistory summary')) return false;
   if (ev.code === 'Space' || ev.key === ' ') { ev.preventDefault(); if (!ev.repeat) { TM.keyDown = true; tmDown('key'); } return true; }
   if (TM.phase === 'running') { ev.preventDefault(); if (!ev.repeat) tmDown('key'); return true; }
   if (ev.key === 'Escape' && TM.phase === 'inspect') { tmCancel(); return true; }
@@ -2496,7 +2522,7 @@ els.main.addEventListener('contextmenu', ev => { if (ev.target.closest('#tmPad')
 els.main.addEventListener('click', async ev => {
   const b = ev.target.closest('[data-tm]'); if (!b) return;
   const a = b.dataset.tm, sv = tdb().solves, li = b.closest('li'), i = li ? +li.dataset.i : -1;
-  if (a === 'scr') { if (!TM.busy()) { TM.scr = tmScramble(TM.scr); tmRender(); } }
+  if (a === 'scr') { if (!TM.busy()) { tmNextScramble(); tmRender(); } }
   else if (a === 'insp') { tdb().inspect = !tdb().inspect; save(true); tmRender(); }
   else if (a === 'plus2' && sv[i]) { if (sv[i].d === 'plus2') delete sv[i].d; else sv[i].d = 'plus2'; save(true); tmRender(); }
   else if (a === 'dnf' && sv[i]) { if (sv[i].d === 'dnf') delete sv[i].d; else sv[i].d = 'dnf'; save(true); tmRender(); }
@@ -2607,6 +2633,7 @@ const UK = {
 Object.assign(UK, {
   'Timer': 'Таймер', 'A speedcube timer with a scramble, optional 15-second inspection and averages of 5 and 12.': 'Таймер для спідкубінгу зі скрамблом, необов’язковим оглядом на 15 секунд і середніми за 5 та 12 складань.',
   'New scramble': 'Нове перемішування', 'Inspection': 'Огляд', 'Timer pad': 'Майданчик таймера',
+  'Previous scrambles': 'Попередні перемішування', 'No previous scrambles yet.': 'Попередніх перемішувань ще немає.',
   'Hold the pad (or Space) until it turns green, then release.': 'Притисни майданчик (або Пробіл), доки він не стане зеленим, і відпусти.',
   'Keep holding…': 'Тримай…', 'Release to start': 'Відпусти, щоб почати', 'Tap or press any key to stop': 'Торкнись або натисни будь-яку клавішу, щоб зупинити',
   'Inspection: hold, then release to start': 'Огляд: притисни й відпусти, щоб почати',
@@ -2730,3 +2757,4 @@ if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) {
 </script>
 </body>
 </html>
+
