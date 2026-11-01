@@ -977,7 +977,7 @@ body {
     ['U1', "R U R' U R' U' R2 U' R' U R' U R"], ['U2', "M2 U' M' U2 M U' M2"], ['Z', "M2 U' M2 U' M' U2 M2 U2 M' U2"],
     ['H', "M2 U' M2 U2 M2 U' M2"], ['A1', "R U R' F' r U R' U' r' F R2 U' R'"], ['A2', "R U R2 F' r U R U' r' F R U' R'"],
     ['E', "x' R U' R' D R U R' D' R U R' D R U' R' D'"], ['J1', "R U R' F' (R U R' U') R' F R2 U' R'"],
-    ['J2', "R' U2 R U R' U2 L U' R U L'"], ['T', "(R U R' U') R' F R2 U' R' U' R U R' F'"],
+    ['J2', "R' U L' U2 R U' R' U2 R L"], ['T', "(R U R' U') R' F R2 U' R' U' R U R' F'"],
     ['F', "R' U' F' (R U R' U') R' F R2 U' R' U' R U R' U R"], ['Y', "F R U' R' U' R U R' F' (R U R' U') R' F R F'"],
     ['V', "R' U R' U' y R' F' R2 U' R' U R' F R F"], ['R1', "R' U2 R U2 R' F (R U R' U') R' F' R2"],
     ['R2', "R U' R' U' R U R D R' U' R D' R' U2 R'"], ['N1', "R U R' U R U R' F' (R U R' U') R' F R2 U' R' U2 R U' R'"],
@@ -1388,7 +1388,7 @@ const normText = alg => E.algText(E.parseAlg(alg).moves);
 /* A second, more convenient formula for every OLL and PLL case (each one is checked against its case by the cube engine). */
 const ALT = {
   OLL: { "CR1": "R U R' U R U' R' U R U2 R'", "CR2": "R' U2 R2 U R2 U R2 U2 R'", "CR3": "U' R U2 R' U' R U' R'", "CR4": "R U' L' U R' U' L", "CR5": "U2 R2 D R' U2 R D' R' U2 R'", "CR6": "F R F' L F R' F' L'", "CR7": "R U2 R D R' U2 R D' R2", "PT1": "U R U' R2 D' r U' r' D R2 U R'", "PT2": "U2 F R' F' R U2 F R' F' R2 U2 R'", "PT3": "r' R2 U R' U r U2 r' U M'", "PT4": "M U' r U2 r' U' R U' R' M'", "PT5": "M U R U R' U' M' R' F R F'", "PT6": "U' R U2 R2 F R F' U2 M' U R U' r'", "PT7": "U2 F R' F' R M U R U' R' U' M'", "PT8": "M U R U R' U' M2 U R U' r'", "LN1": "U2 R' U' F R' F' R F R' F' R U R", "LN2": "R U' B2 D B' U2 B D' B2 d B'", "LN3": "U2 F U R U' R' U R U' R' F'", "LN4": "r U r' U R U' R' U R U' R' r U' r'", "SL1": "U' r U2 R' U' R U R' U' R U' r'", "SL2": "U' F R' F2 R U2 R U2 R' F", "SL3": "R' U' R' F R F' R' F R F' U R", "SL4": "U' R' F R F' U2 R2 B' R' B R'", "SL5": "U' F' R U2 R' U2 R' F2 R F'", "SL6": "F R' F' U2 R U R' U R2 U2 R'", "Q1": "F R U' R' U R U2 R' U' F'", "Q2": "U2 r' U2 R U R' U r", "SZ1": "r U R' U R U2 r'", "SZ2": "U2 M' R' U' R U' R' U2 R U' M", "SZ3": "R U' R' U2 R U B U' B' U' R'", "SZ4": "U R' F U F2 U F2 U2 F' U R", "SZ5": "U2 R U2 R' U2 R' F R F'", "SZ6": "U' r' R2 U R' U R U2 R' U M'", "FSH1": "F R' F' R U R U' R'", "FSH2": "U R' U2 R2 B' R' B R' U2 R", "FSH3": "R U R' U' R' F R2 U R' U' F'", "FSH4": "U' F U F' R' F R U' R' F' R", "C1": "U' R' U' R' F R F' U R", "C2": "F' U2 F2 U R U' R2 F' R2 U' R'", "L1": "R' F R U R' F' R F U' F'", "L2": "r' U' r R' U' R U r' U r", "L3": "F U R U2 R' U' R U R' F'", "L4": "U2 r U r' R U R' U' r U' r'", "P1": "U L U F U' F' L'", "P2": "U2 R U B' U' R' U R B R'", "P3": "U' R' U' F' U F R", "P4": "R' U' F U R U' R' F' R", "T1": "F R U' R' U R U R' F'", "T2": "U R' F' U' F U R", "W1": "F' U' F2 R U R' U' F2 U2 F", "W2": "U2 R' U' R U' R' U R U R B' R' B", "Z1": "R' F R U R' U' F' U R", "Z2": "U2 R B' R' U' R U B U' R'", "4C1": "U r U R' U' M U R U' R'", "4C2": "R U R' U' M' U R U' r'" },
-  PLL: { "U1": "M2 U M' U2 M U M2", "U2": "R' U R' U' R' U' R' U R U R2", "Z": "M2 U2 M U M2 U M2 U M", "H": "R2 U2 R U2 R2 U2 R2 U2 R U2 R2", "A1": "U R' F R' B2 R F' R' B2 R2", "A2": "U R2 B2 R F R' B2 R F' R", "E": "R B' R' F R B R' F' R B R' F R B' R' F'", "J1": "R U2 R' U' R U2 L' U R' U' L", "J2": "R' U L' U2 R U' R' U2 R L", "T": "F R U' R' U R U R2 F' R U R U' R'", "F": "U R' U2 R' d' R' F' R2 U' R' U R' F R U' F", "Y": "F R' F' R U R U' R' F R U' R' U R U R' F'", "V": "R' U R' d' R' F' R2 U' R' U R' F R F", "R1": "U R2 F R U R U' R' F' R U2 R' U2 R", "R2": "R U R' F' R U2 R' U2 R' F R U R U2 R'", "N1": "L U' R U2 L' U R' L U' R U2 L' U R'", "N2": "R' U R U' R' F' U' F R U R' F R' F' R U' R", "G1": "R2 U R' U R' U' R U' R2 U' D R' U R D'", "G2": "U' D R' U' R D' U R2 U R' U R U' R U' R2", "G3": "U2 R2 U' R U' R U R' U R2 U D' R U' R' D", "G4": "U' D' R U R' D U' R2 U' R U' R' U R' U R2" }
+  PLL: { "U1": "M2 U M' U2 M U M2", "U2": "R' U R' U' R' U' R' U R U R2", "Z": "M2 U2 M U M2 U M2 U M", "H": "R2 U2 R U2 R2 U2 R2 U2 R U2 R2", "A1": "U R' F R' B2 R F' R' B2 R2", "A2": "U R2 B2 R F R' B2 R F' R", "E": "R B' R' F R B R' F' R B R' F R B' R' F'", "J1": "R U2 R' U' R U2 L' U R' U' L", "J2": "R' U2 R U R' U2 L U' R U L'", "T": "F R U' R' U R U R2 F' R U R U' R'", "F": "U R' U2 R' d' R' F' R2 U' R' U R' F R U' F", "Y": "F R' F' R U R U' R' F R U' R' U R U R' F'", "V": "R' U R' d' R' F' R2 U' R' U R' F R F", "R1": "U R2 F R U R U' R' F' R U2 R' U2 R", "R2": "R U R' F' R U2 R' U2 R' F R U R U2 R'", "N1": "L U' R U2 L' U R' L U' R U2 L' U R'", "N2": "R' U R U' R' F' U' F R U R' F R' F' R U' R", "G1": "R2 U R' U R' U' R U' R2 U' D R' U R D'", "G2": "U' D R' U' R D' U R2 U R' U R U' R U' R2", "G3": "U2 R2 U' R U' R U R' U R2 U D' R U' R' D", "G4": "U' D' R U R' D U' R2 U' R U' R' U R' U R2" }
 };
 const defaultAlg = (stage, id) => (D[stage].find(x => x[0] === id) || [0, ''])[1];
 
@@ -1460,7 +1460,7 @@ function load() {
   for (const k of LEGACY) {
     try { const o = JSON.parse(store.get(k)); if (o && o.F2L && o.OLL && o.PLL) return migrate(o); } catch { /* next */ }
   }
-  return { v: 4, altSeed: 2, formulaSeed: 1, groups: defaultGroups(), progress: {}, settings: {} };
+  return { v: 4, altSeed: 2, formulaSeed: 2, groups: defaultGroups(), progress: {}, settings: {} };
 }
 let db = load();
 let saveTimer = 0, dirty = false;
@@ -1510,6 +1510,27 @@ if ((db.altSeed | 0) < 2) {
     else if (it.alts.length === 1 && OLD[st] && OLD[st][it.id] && normText(it.alts[0]) === normText(OLD[st][it.id])) it.alts = [a];
   }
   db.altSeed = 2;
+  save();
+}
+
+// J2 now uses the former alternative as its main algorithm. Upgrade saved
+// built-in cases without replacing custom formulas or resetting learning progress.
+if ((db.formulaSeed | 0) < 2) {
+  const j2 = db.groups.PLL.find(it => it.id === 'J2');
+  const previousMain = "R' U2 R U R' U2 L U' R U L'";
+  const nextMain = defaultAlg('PLL', 'J2');
+  if (j2 && normText(j2.alg) === normText(previousMain)) {
+    j2.alg = nextMain;
+    j2.alts = j2.alts.map(a => normText(a) === normText(nextMain) ? previousMain : a);
+    if (!j2.alts.some(a => normText(a) === normText(previousMain))) j2.alts.unshift(previousMain);
+    // With an automatic setup, its inverse is now computed from the new main algorithm.
+    if (j2.setup && normText(j2.setup) === normText(invertText(previousMain))) j2.setup = null;
+    if (db.settings.pref && db.settings.pref['PLL:J2']) {
+      delete db.settings.pref['PLL:J2'];
+      if (!Object.keys(db.settings.pref).length) delete db.settings.pref;
+    }
+  }
+  db.formulaSeed = 2;
   save();
 }
 
