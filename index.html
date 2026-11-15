@@ -634,7 +634,7 @@ body {
       <p id="installTxt"></p>
       <div class="row"><button class="btn sm" id="installBtn" type="button" hidden>Install app</button></div></div>
     <div class="setSec"><h4>Backup</h4>
-      <p>Your formulas, order and progress live in this browser. Copy a backup to keep it safe or move it to another device.</p>
+      <p>Your formulas, order, progress and timer history live in this browser. Save a backup to move them to another device or recover them later.</p>
       <div class="row"><button class="btn sm" id="bkCopy" type="button">Copy backup</button><button class="btn sm" id="bkSave" type="button">Save as file</button><label class="btn sm" for="bkFile">Choose file…</label><input id="bkFile" type="file" accept="application/json,.json,text/plain" class="sr"></div>
       <label class="field"><span>Paste a backup to restore</span><textarea class="ta sm" id="bkText" rows="3" spellcheck="false" placeholder="{ &quot;app&quot;: &quot;rubik-algorithms&quot;, … }"></textarea></label>
       <div class="row"><button class="btn sm" id="bkRestore" type="button">Check backup</button><span class="msg" id="bkMsg" aria-live="polite"></span></div></div>
@@ -1370,7 +1370,11 @@ const reduced = () => !!(window.matchMedia && matchMedia('(prefers-reduced-motio
 
 /* ── storage ─────────────────────────────────────────────── */
 const KEY = 'rubik-algorithms-v4', LEGACY = ['rubik-algorithm-draft-v3', 'rubik-algorithm-draft-v2'], THEME_KEY = 'rubik-algorithm-theme-v1';
-const store = { get(k) { try { return localStorage.getItem(k); } catch { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch { /* storage unavailable */ } } };
+const TIMER_KEY = 'rubik-algorithms-timer-v1';
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); return true; } catch { return false; } }
+};
 const STAGES = ['F2L', 'OLL', 'PLL'];
 const TABS = ['F2L', 'OLL', 'PLL', 'NOTATION', 'TIMER'];
 const plainTab = t => t === 'NOTATION' || t === 'TIMER';
@@ -1404,6 +1408,29 @@ function cleanItem(it) {
   if (it && typeof it.image === 'string' && it.image) o.image = it.image;
   return o;
 }
+function hydrateTimer(saved) {
+  const timer = { solves: [], inspect: !!saved.inspect, scrambleHistory: [] };
+  const solves = Array.isArray(saved.solves) ? saved.solves.slice(-1000) : [];
+  for (const [i, x] of solves.entries()) {
+    if (!x || !(x.t > 0) || x.t > 1e8) continue;
+    const at = Number.isSafeInteger(x.at) ? x.at : 0;
+    const id = typeof x.id === 'string' && x.id ? x.id : 'legacy-' + i + '-' + at + '-' + x.t;
+    const solve = { id, t: x.t | 0, at };
+    if (x.d === 'plus2' || x.d === 'dnf') solve.d = x.d;
+    if (typeof x.s === 'string') solve.s = x.s.slice(0, 200);
+    timer.solves.push(solve);
+  }
+  const history = Array.isArray(saved.scrambleHistory) ? saved.scrambleHistory : timer.solves.map(x => x.s);
+  timer.scrambleHistory = history.filter(s => typeof s === 'string' && s.trim()).slice(-5).map(s => s.slice(0, 200));
+  if (typeof saved.currentScramble === 'string' && saved.currentScramble.trim()) timer.currentScramble = saved.currentScramble.slice(0, 200);
+  return timer;
+}
+function readTimer() {
+  try {
+    const saved = JSON.parse(store.get(TIMER_KEY));
+    return saved && Array.isArray(saved.solves) ? hydrateTimer(saved) : null;
+  } catch { return null; }
+}
 function hydrate(saved) {
   const out = { v: 4, altSeed: saved.altSeed | 0, formulaSeed: saved.formulaSeed | 0, groups: {}, progress: {}, settings: {} };
   for (const s of STAGES) {
@@ -1418,19 +1445,7 @@ function hydrate(saved) {
       if (p.best > 0) out.progress[k].best = p.best | 0;
     }
   }
-  if (saved.timer && typeof saved.timer === 'object') {
-    out.timer = { solves: [], inspect: !!saved.timer.inspect, scrambleHistory: [] };
-    for (const x of (Array.isArray(saved.timer.solves) ? saved.timer.solves.slice(-1000) : [])) {
-      if (!x || !(x.t > 0) || x.t > 1e8) continue;
-      const o = { t: x.t | 0, at: x.at | 0 };
-      if (x.d === 'plus2' || x.d === 'dnf') o.d = x.d;
-      if (typeof x.s === 'string') o.s = x.s.slice(0, 200);
-      out.timer.solves.push(o);
-    }
-    out.timer.scrambleHistory = (Array.isArray(saved.timer.scrambleHistory) ? saved.timer.scrambleHistory : out.timer.solves.map(x => x.s))
-      .filter(s => typeof s === 'string' && s.trim()).slice(-5).map(s => s.slice(0, 200));
-    if (typeof saved.timer.currentScramble === 'string' && saved.timer.currentScramble.trim()) out.timer.currentScramble = saved.timer.currentScramble.slice(0, 200);
-  }
+  if (saved.timer && typeof saved.timer === 'object') out.timer = hydrateTimer(saved.timer);
   if (saved.settings && typeof saved.settings === 'object') {
     if (saved.settings.palette === 'white') out.settings.palette = 'white';
     if (TABS.includes(saved.settings.tab)) out.settings.tab = saved.settings.tab;
@@ -2373,11 +2388,13 @@ function syncSettings() {
 }
 $('#langSeg').addEventListener('click', ev => { const b = ev.target.closest('[data-lang]'); if (!b) return; db.settings.lang = b.dataset.lang; save(); setLanguage(b.dataset.lang); syncSettings(); const scanner = $('#scannerBtn'); if (scanner) scanner.href = 'scanner-cfop.html?lang=' + encodeURIComponent(b.dataset.lang); });
 $('#palette').addEventListener('click', ev => { const b = ev.target.closest('[data-pal]'); if (!b) return; if (b.dataset.pal === 'white') db.settings.palette = 'white'; else delete db.settings.palette; save(); applyPalette(); syncSettings(); });
-const backupJSON = () => JSON.stringify({ app: 'rubik-algorithms', v: 4, saved: new Date().toISOString(), groups: db.groups, progress: db.progress, settings: db.settings });
+const backupJSON = () => withTimerLock(() => JSON.stringify({
+  ...db, app: 'rubik-algorithms', v: 4, saved: new Date().toISOString(), timer: latestTimer()
+}));
 const bkMsg = (t, good) => { const m = $('#bkMsg'); m.textContent = t; m.className = 'msg ' + (good ? 'good' : 'badm'); };
-$('#bkCopy').addEventListener('click', async () => { const ok = await copyText(backupJSON(), 'Backup copied'); bkMsg(ok ? 'Backup copied to the clipboard.' : 'Copy is blocked here. Use Save as file instead.', ok); });
+$('#bkCopy').addEventListener('click', async () => { const ok = await copyText(await backupJSON(), 'Backup copied'); bkMsg(ok ? 'Backup copied to the clipboard.' : 'Copy is blocked here. Use Save as file instead.', ok); });
 $('#bkSave').addEventListener('click', async () => {
-  const name = 'rubik-algorithms-backup.json', data = backupJSON();
+  const name = 'rubik-algorithms-backup.json', data = await backupJSON();
   let dl = null;
   try { dl = window.claude && window.claude.use ? await window.claude.use('downloads') : null; } catch { dl = null; }
   try {
@@ -2391,12 +2408,27 @@ function checkBackup(text) {
     const o = JSON.parse(text);
     if (!o || !o.groups || !STAGES.every(s => Array.isArray(o.groups[s]))) throw new Error('shape');
     const h = hydrate(o), n = STAGES.reduce((a, s) => a + h.groups[s].length, 0);
-    pending = h; bkMsg('This backup holds ' + n + ' cases. Press again to replace your current data.', true);
+    pending = h;
+    bkMsg(h.timer
+      ? 'This backup holds ' + n + ' cases and ' + h.timer.solves.length + ' solves. Press again to replace your current data.'
+      : 'This backup holds ' + n + ' cases. Your timer history will be kept.', true);
     $('#bkRestore').textContent = 'Replace my data';
   } catch { pending = null; $('#bkRestore').textContent = 'Check backup'; bkMsg('That is not a backup from this site.', false); }
 }
-$('#bkRestore').addEventListener('click', () => {
-  if (pending) { db = pending; pending = null; vcache.clear(); save(); flush(); applyPalette(); $('#bkRestore').textContent = 'Check backup'; $('#bkText').value = ''; bkMsg('Backup restored.', true); render(); return; }
+$('#bkRestore').addEventListener('click', async () => {
+  if (pending) {
+    const restore = $('#bkRestore'), backup = pending;
+    restore.disabled = true;
+    try {
+      if (backup.timer && !await changeTimer(() => backup.timer, false)) {
+        bkMsg('Timer history could not be saved. Download a backup before closing this page.', false);
+        return;
+      }
+      db = backup; pending = null; vcache.clear(); save(); flush(); applyPalette();
+      restore.textContent = 'Check backup'; $('#bkText').value = ''; bkMsg('Backup restored.', true); render();
+    } finally { restore.disabled = false; }
+    return;
+  }
   if (!$('#bkText').value.trim()) { bkMsg('Paste a backup first, or choose a file.', false); return; }
   checkBackup($('#bkText').value);
 });
@@ -2406,14 +2438,55 @@ $('#bkFile').addEventListener('change', ev => {
   const r = new FileReader(); r.onload = () => { $('#bkText').value = String(r.result); checkBackup(String(r.result)); }; r.onerror = () => bkMsg('Could not read that file.', false); r.readAsText(f); ev.target.value = '';
 });
 $('#resetBtn').addEventListener('click', async () => {
-  const ok = await askConfirm('Reset everything?', 'Cases, formulas, order and progress go back to the original set. This cannot be undone.', 'Reset');
-  if (!ok) return;
+  const ok = await askConfirm('Reset everything?', 'Cases, formulas, order and progress go back to the original set. Timer history is deleted. This cannot be undone.', 'Reset');
+  if (!ok || !await changeTimer(() => hydrateTimer({}), false)) return;
   db = { v: 4, groups: defaultGroups(), progress: {}, settings: { tab: ui.tab } }; vcache.clear(); save(); flush(); applyPalette(); render(); $('#resetMsg').textContent = 'Everything was reset.';
 });
 
 /* ── timer ───────────────────────────────────────────────── */
-const tdb = () => db.timer || (db.timer = { solves: [], inspect: false, scrambleHistory: [] });
+let timer = readTimer() || db.timer || hydrateTimer({});
+let lastStoredTimer = timer;
+let unsavedTimerChanges = [];
+function latestTimer() {
+  const stored = readTimer() || lastStoredTimer;
+  return unsavedTimerChanges.length
+    ? unsavedTimerChanges.reduce((draft, change) => change(draft) || draft, hydrateTimer(stored))
+    : stored;
+}
+const tdb = () => timer;
 const TM = { phase: 'idle', held: 'none', src: '', keyDown: false, t0: 0, ins0: 0, hold: 0, scr: '', pen: null, busy() { return this.phase === 'running' || this.phase === 'inspect'; } };
+function showTimer(next) {
+  timer = next;
+  if (!TM.busy() && TM.held === 'none' && next.currentScramble) TM.scr = next.currentScramble;
+  tmRender();
+}
+function withTimerLock(action) {
+  return navigator.locks && /^https?:$/.test(location.protocol)
+    ? navigator.locks.request(TIMER_KEY, action)
+    : Promise.resolve(action());
+}
+function changeTimer(change, keepUnsaved = true) {
+  return withTimerLock(() => {
+    // Read the current state after acquiring the lock, so an old tab only writes its own change.
+    const current = hydrateTimer(latestTimer());
+    const next = change(current) || current;
+    if (store.set(TIMER_KEY, JSON.stringify(next))) {
+      lastStoredTimer = next;
+      unsavedTimerChanges = [];
+      showTimer(next);
+      return true;
+    }
+    if (keepUnsaved) {
+      unsavedTimerChanges.push(change);
+      showTimer(next);
+    }
+    toast('Timer history could not be saved. Download a backup before closing this page.');
+    return false;
+  });
+}
+addEventListener('storage', ev => {
+  if (ev.key === TIMER_KEY) showTimer(latestTimer());
+});
 const tmEff = x => x.d === 'dnf' ? Infinity : x.t + (x.d === 'plus2' ? 2000 : 0);
 function tmFmt(ms) {
   if (ms === Infinity) return 'DNF';
@@ -2437,13 +2510,18 @@ function tmScramble(previous = '') {
   } while (scramble === previous);
   return scramble;
 }
-function tmNextScramble() {
-  const t = tdb(), history = t.scrambleHistory || [];
-  if (TM.scr) history.push(TM.scr);
-  t.scrambleHistory = history.slice(-5);
-  TM.scr = tmScramble(TM.scr);
-  t.currentScramble = TM.scr;
-  save(true);
+function tmNextScramble(solve) {
+  const previous = TM.scr;
+  const next = tmScramble(previous);
+  TM.scr = next;
+  return changeTimer(timer => {
+    if (solve) {
+      timer.solves.push(solve);
+      if (timer.solves.length > 1000) timer.solves.shift();
+    }
+    if (previous) timer.scrambleHistory = [...timer.scrambleHistory, previous].slice(-5);
+    timer.currentScramble = next;
+  });
 }
 function timerHTML() {
   return '<div class="tm"><div class="tmTop"><p class="tmScr" id="tmScr" aria-live="polite"></p>' +
@@ -2498,7 +2576,16 @@ function tmRender() {
     '<button type="button" class="tmMini" data-tm="del" aria-label="Delete solve">×</button></li>').join('') : '<li class="empty">No solves yet.</li>';
   tmPaint();
 }
-function timerShow() { TM.scr = tdb().currentScramble || ''; if (!TM.scr) tmNextScramble(); tmRender(); }
+function timerShow() {
+  const current = latestTimer();
+  showTimer(current);
+  if (!current.currentScramble) {
+    const scramble = tmScramble();
+    TM.scr = scramble;
+    changeTimer(timer => { timer.currentScramble ||= scramble; });
+    tmRender();
+  }
+}
 function tmDown(src) {
   if (TM.phase === 'running') { tmStop(); return; }
   if (TM.held !== 'none') return;
@@ -2522,10 +2609,11 @@ function tmUp(src) {
 function tmStop() {
   const ms = performance.now() - TM.t0;
   TM.phase = 'idle'; TM.held = 'none';
-  const x = { t: Math.round(ms), at: Date.now(), s: TM.scr };
-  if (TM.pen) x.d = TM.pen;
-  const sv = tdb().solves; sv.push(x); if (sv.length > 1000) sv.shift();
-  tmNextScramble(); tmRender();
+  const at = Date.now();
+  const id = globalThis.crypto?.randomUUID?.() || at + '-' + Math.random().toString(36).slice(2);
+  const solve = { id, t: Math.max(1, Math.round(ms)), at, s: TM.scr };
+  if (TM.pen) solve.d = TM.pen;
+  tmNextScramble(solve); tmRender();
 }
 function tmCancel() { clearTimeout(TM.hold); TM.phase = 'idle'; TM.held = 'none'; tmPaint(); }
 function timerKeys(ev) {
@@ -2543,13 +2631,22 @@ els.main.addEventListener('contextmenu', ev => { if (ev.target.closest('#tmPad')
 els.main.addEventListener('click', async ev => {
   const b = ev.target.closest('[data-tm]'); if (!b) return;
   const a = b.dataset.tm, sv = tdb().solves, li = b.closest('li'), i = li ? +li.dataset.i : -1;
-  if (a === 'scr') { if (!TM.busy()) { tmNextScramble(); tmRender(); } }
-  else if (a === 'insp') { tdb().inspect = !tdb().inspect; save(true); tmRender(); }
-  else if (a === 'plus2' && sv[i]) { if (sv[i].d === 'plus2') delete sv[i].d; else sv[i].d = 'plus2'; save(true); tmRender(); }
-  else if (a === 'dnf' && sv[i]) { if (sv[i].d === 'dnf') delete sv[i].d; else sv[i].d = 'dnf'; save(true); tmRender(); }
-  else if (a === 'del' && sv[i]) { sv.splice(i, 1); save(true); tmRender(); }
+  if (a === 'scr' && !TM.busy() && TM.held === 'none') tmNextScramble();
+  else if (a === 'insp') changeTimer(timer => { timer.inspect = !timer.inspect; });
   else if (a === 'clear' && sv.length) {
-    if (await askConfirm('Clear all solves?', 'Every saved time is deleted. This cannot be undone.', 'Clear')) { tdb().solves = []; save(true); tmRender(); }
+    if (await askConfirm('Clear all solves?', 'Every saved time is deleted. This cannot be undone.', 'Clear')) {
+      changeTimer(timer => { timer.solves = []; });
+    }
+  } else if (sv[i]) {
+    const id = sv[i].id;
+    changeTimer(timer => {
+      const index = timer.solves.findIndex(solve => solve.id === id);
+      if (index < 0) return;
+      const solve = timer.solves[index];
+      if (a === 'del') timer.solves.splice(index, 1);
+      else if (a === solve.d) delete solve.d;
+      else if (a === 'plus2' || a === 'dnf') solve.d = a;
+    });
   }
 });
 
@@ -2620,9 +2717,10 @@ const UK = {
   'Cube colours': 'Кольори кубика', 'Install': 'Встановлення', 'Install app': 'Встановити застосунок', 'Backup': 'Резервна копія', 'Save as file': 'Зберегти у файл', 'Choose file…': 'Обрати файл…',
   'Paste a backup to restore': 'Встав копію для відновлення', 'Check backup': 'Перевірити копію', 'Reset': 'Скинути', 'Reset everything…': 'Скинути все…', 'Reset everything?': 'Скинути все?',
   'Are you sure?': 'Ти впевнений?', 'Replace my data': 'Замінити мої дані', 'Keyboard': 'Клавіатура', 'Language': 'Мова',
-  'Your formulas, order and progress live in this browser. Copy a backup to keep it safe or move it to another device.': 'Твої формули, порядок і прогрес зберігаються в цьому браузері. Скопіюй резервну копію, щоб зберегти їх або перенести на інший пристрій.',
+  'Your formulas, order, progress and timer history live in this browser. Save a backup to move them to another device or recover them later.': 'Твої формули, порядок, прогрес та історія таймера зберігаються в цьому браузері. Збережи резервну копію, щоб перенести їх або відновити пізніше.',
   'Restore the original cases, formulas and order. Progress is cleared too.': 'Повернути початкові випадки, формули й порядок. Прогрес теж буде очищено.',
-  'Cases, formulas, order and progress go back to the original set. This cannot be undone.': 'Випадки, формули, порядок і прогрес повернуться до початкових. Це не можна скасувати.',
+  'Cases, formulas, order and progress go back to the original set. Timer history is deleted. This cannot be undone.': 'Випадки, формули, порядок і прогрес повернуться до початкових. Історію таймера буде видалено. Це не можна скасувати.',
+  'Timer history could not be saved. Download a backup before closing this page.': 'Не вдалося зберегти історію таймера. Завантаж резервну копію, перш ніж закрити сторінку.',
   'Everything was reset.': 'Усе скинуто.', 'Backup copied': 'Копію скопійовано', 'Backup copied to the clipboard.': 'Копію скопійовано в буфер обміну.', 'Copy is blocked here. Use Save as file instead.': 'Тут копіювання заблоковано. Скористайся «Зберегти у файл».',
   'Backup saved.': 'Копію збережено.', 'Backup downloaded.': 'Копію завантажено.', 'Save cancelled.': 'Збереження скасовано.', 'Saving is not available here. Use Copy backup instead.': 'Тут збереження недоступне. Скористайся «Копіювати копію».',
   'That is not a backup from this site.': 'Це не резервна копія з цього сайту.', 'Backup restored.': 'Копію відновлено.', 'Paste a backup first, or choose a file.': 'Спочатку встав копію або обери файл.', 'Could not read that file.': 'Не вдалося прочитати файл.',
@@ -2696,7 +2794,8 @@ const UK_RE = [
   [/^A case named (.+) already exists in (\S+)\.$/, m => 'Випадок із назвою ' + m[1] + ' уже є в ' + m[2] + '.'],
   [/^This formula does not solve a (F2L pair|OLL case|PLL case)\. Check it for a typo\.$/, m => 'Ця формула не розв’язує цей випадок (' + m[1].split(' ')[0] + '). Перевір, чи немає помилки в записі.'],
   [/^Unknown moves?: (.+)$/, m => 'Невідомий хід: ' + m[1]],
-  [/^This backup holds (\d+) cases\. Press again to replace your current data\.$/, m => 'У цій копії ' + m[1] + ' ' + ukPlural(+m[1], 'випадок', 'випадки', 'випадків') + '. Натисни ще раз, щоб замінити поточні дані.'],
+  [/^This backup holds (\d+) cases and (\d+) solves\. Press again to replace your current data\.$/, m => 'Випадків у копії — ' + m[1] + ', складань — ' + m[2] + '. Натисни ще раз, щоб замінити поточні дані.'],
+  [/^This backup holds (\d+) cases\. Your timer history will be kept\.$/, m => 'Випадків у копії — ' + m[1] + '. Поточну історію таймера буде збережено.'],
   [/^Corner (.+)\. Edge (.+)\.$/, m => 'Кут ' + m[1].split(' or ').map(ukWord).join(' або ') + '. Ребро ' + m[2].split(' or ').map(ukWord).join(' або ') + '.'],
   [/^Edges oriented: (\S+?)(?: \((.+?)\))?\. Corners oriented: (\S+?)\.$/, m => 'Зорієнтовано ребер: ' + m[1] + (m[2] ? ' (' + m[2].split(' or ').map(ukAdj).join(' або ') + ')' : '') + '. Зорієнтовано кутів: ' + m[3] + '.']
 ];
@@ -2761,6 +2860,7 @@ function setLanguage(lang) {
 const currentLang = () => db.settings.lang === 'uk' || db.settings.lang === 'en' ? db.settings.lang : (/^uk\b/i.test(navigator.language || '') ? 'uk' : 'en');
 
 /* ── start ───────────────────────────────────────────────── */
+if (db.timer && !readTimer()) changeTimer(() => {});
 applyPalette();
 render();
 setLanguage(currentLang());
