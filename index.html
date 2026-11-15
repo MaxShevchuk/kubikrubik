@@ -1475,7 +1475,7 @@ function load() {
   for (const k of LEGACY) {
     try { const o = JSON.parse(store.get(k)); if (o && o.F2L && o.OLL && o.PLL) return migrate(o); } catch { /* next */ }
   }
-  return { v: 4, altSeed: 2, formulaSeed: 2, groups: defaultGroups(), progress: {}, settings: {} };
+  return { v: 4, altSeed: 2, formulaSeed: 3, groups: defaultGroups(), progress: {}, settings: {} };
 }
 let db = load();
 let saveTimer = 0, dirty = false;
@@ -1573,14 +1573,21 @@ for (const [id, fix] of Object.entries(FORMULA_REPAIRS)) {
     repairedFormula = true;
   }
 }
-// OLL CR3: the main formula was replaced on request. Saved copies that still hold the old built-in one get the new one.
-{
+// OLL CR3: align existing browser saves with the chosen algorithm and its alternative.
+// Apply once; subsequent edits to CR3 must remain the user's own.
+if ((db.formulaSeed | 0) < 3) {
   const cr3 = db.groups.OLL.find(it => it.id === 'CR3');
-  if (cr3 && normText(cr3.alg) === normText("L' U R U' L U R'")) {
-    cr3.alg = "y R U2 R' U' R U' R'";
-    cr3.setup = null;
-    repairedFormula = true;
+  if (cr3) {
+    cr3.alg = defaultAlg('OLL', 'CR3');
+    cr3.alts = [ALT.OLL.CR3];
+    cr3.setup = null; // automatically show the inverse of the main formula
+    if (db.settings.pref) {
+      delete db.settings.pref['OLL:CR3'];
+      if (!Object.keys(db.settings.pref).length) delete db.settings.pref;
+    }
   }
+  db.formulaSeed = 3;
+  save();
 }
 // Update saved preferred formulas too, so a previous local choice cannot restore a known bad sequence.
 if (db.settings.pref) {
